@@ -104,6 +104,7 @@ public class EmbeddedPregraphXmlReader implements GraphReader, EmbeddedPregraphX
         for (Element element : (List<Element>)verticesElement.getChildren(VERTEX_ELEMENT)) {
             int id = Integer.parseInt(element.getAttributeValue(ID));
             vertices[id-1] = new Vertex(Vertex.VertexType.VERTEX);
+            vertices[id-1].setAnnotation(Integer.toString(id));
         }
         for (Element element : (List<Element>)verticesElement.getChildren(LOOP_VERTEX_ELEMENT)) {
             int id = Integer.parseInt(element.getAttributeValue(ID));
