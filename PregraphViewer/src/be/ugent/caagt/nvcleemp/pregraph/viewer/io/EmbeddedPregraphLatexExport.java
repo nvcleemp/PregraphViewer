@@ -45,7 +45,7 @@ public class EmbeddedPregraphLatexExport {
     }
 
     public static String export(EmbeddedPregraph pregraph){
-        StringBuffer latex = new StringBuffer("\\begin{tikzpicture}[scale=0.1]\n");
+        StringBuffer latex = new StringBuffer("\\begin{tikzpicture}[scale=0.01]\n");
         for (Vertex vertex : pregraph.getVertices()) {
             if(vertex.getType().equals(Vertex.VertexType.VERTEX)){
                 latex.append(String.format("    \\node [circle,fill] (%s) at (%d,%d) {};\n",
@@ -73,7 +73,7 @@ public class EmbeddedPregraphLatexExport {
                 double xC2 = xB - d*xE/Math.sqrt(xE*xE+yE*yE);
                 double yC2 = yB - d*yE/Math.sqrt(xE*xE+yE*yE);
 
-                latex.append(String.format("    \\draw (%s) .. controls (%f,%f) .. (%f,%f) .. (%s);\n",
+                latex.append(String.format("    \\draw (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
                         Integer.toHexString(v2.hashCode()), xC1, yC1, xC2, yC2, Integer.toHexString(v2.hashCode())));
 
             } else if(edge.isSemiEdge()){
@@ -111,7 +111,7 @@ public class EmbeddedPregraphLatexExport {
                         double xC2 = x2/3 + 2*xC/3;
                         double yC2 = y2/3 + 2*yC/3;
 
-                        latex.append(String.format("    \\draw (%s) .. controls (%f,%f) .. (%f,%f) .. (%s);\n",
+                        latex.append(String.format("    \\draw (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
                                 Integer.toHexString(v1.hashCode()), xC1, yC1, xC2, yC2, Integer.toHexString(v2.hashCode())));
                     }
                     {
@@ -123,7 +123,7 @@ public class EmbeddedPregraphLatexExport {
                         double xC2 = x2/3 + 2*xC/3;
                         double yC2 = y2/3 + 2*yC/3;
 
-                        latex.append(String.format("    \\draw (%s) .. controls (%f,%f) .. (%f,%f) .. (%s);\n",
+                        latex.append(String.format("    \\draw (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
                                 Integer.toHexString(v1.hashCode()), xC1, yC1, xC2, yC2, Integer.toHexString(v2.hashCode())));
                     }
                 }
