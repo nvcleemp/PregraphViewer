@@ -27,6 +27,7 @@
 
 package be.ugent.caagt.nvcleemp.pregraph.viewer;
 
+import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ExportAllToLatex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ExportToLatex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.SaveEmbeddedPregraphListAction;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.SaveImageAction;
@@ -61,6 +62,7 @@ public class ViewerFrame extends JFrame {
         saveMenu.add(new SaveImageAction(listViewer));
         saveMenu.add(new SaveEmbeddedPregraphListAction(listModel));
         saveMenu.add(new ExportToLatex(listModel));
+        saveMenu.add(new ExportAllToLatex(listModel));
         bar.add(saveMenu);
         JMenu viewMenu = new JMenu("View");
         viewMenu.add(new ScaleToFitAction(listModel, listViewer));
