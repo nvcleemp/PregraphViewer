@@ -30,7 +30,6 @@ package be.ugent.caagt.nvcleemp.pregraph.viewer;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.VertexPainter;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.EdgePainter;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.PregraphEdgePainter;
-import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.PregraphVertexPainter;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbeddedPregraphListener;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbeddedPregraph;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Edge;

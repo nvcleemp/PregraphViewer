@@ -27,7 +27,6 @@
 
 package be.ugent.caagt.nvcleemp.pregraph.viewer.embedder;
 
-import be.ugent.caagt.nvcleemp.graphio.pregraph.Edge;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Vertex;
 import java.util.List;
 

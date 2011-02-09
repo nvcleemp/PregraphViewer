@@ -27,25 +27,15 @@
 
 package be.ugent.caagt.nvcleemp.pregraph.viewer;
 
-import be.ugent.caagt.nvcleemp.graphio.pregraph.PregraphReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ExportToLatex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.SaveEmbeddedPregraphListAction;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.SaveImageAction;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ScaleToFitAction;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbedderControl;
-import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbedderRunner;
-import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ForceEmbedder;
-import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.RandomEmbedder;
-import be.ugent.caagt.nvcleemp.pregraph.viewer.list.DefaultEmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.ListViewer;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
