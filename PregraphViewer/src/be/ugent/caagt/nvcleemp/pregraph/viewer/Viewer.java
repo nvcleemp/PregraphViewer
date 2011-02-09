@@ -31,6 +31,7 @@ import be.ugent.caagt.nvcleemp.graphio.pregraph.PregraphReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbedderRunner;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ForceEmbedder;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.RandomEmbedder;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ScaleToFitEmbedder;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.io.EmbeddedPregraphXmlReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.DefaultEmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
@@ -83,6 +84,7 @@ public class Viewer extends JFrame {
                         EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(pregraphReader);
                         EmbedderRunner.singleRunEmbedder(new RandomEmbedder(), listModel);
                         EmbedderRunner.repeatedRunEmbedder(50, new ForceEmbedder(), listModel);
+                        EmbedderRunner.singleRunEmbedder(new ScaleToFitEmbedder(500,400), listModel);
                         ViewerFrame frame = new ViewerFrame(chooser.getSelectedFile().getName(), listModel);
                         registerFrame(frame);
                         frame.setVisible(true);
