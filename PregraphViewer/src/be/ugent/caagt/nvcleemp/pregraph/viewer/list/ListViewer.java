@@ -74,5 +74,8 @@ public class ListViewer extends JPanel {
         return viewerPanel.getImage();
     }
 
+    public Dimension getViewerSize(){
+        return viewerPanel.getSize();
+    }
     
 }

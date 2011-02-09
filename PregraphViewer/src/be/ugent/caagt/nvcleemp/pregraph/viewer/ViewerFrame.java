@@ -31,6 +31,7 @@ import be.ugent.caagt.nvcleemp.graphio.pregraph.PregraphReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ExportToLatex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.SaveEmbeddedPregraphListAction;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.SaveImageAction;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ScaleToFitAction;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbedderControl;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbedderRunner;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ForceEmbedder;
@@ -71,6 +72,9 @@ public class ViewerFrame extends JFrame {
         saveMenu.add(new SaveEmbeddedPregraphListAction(listModel));
         saveMenu.add(new ExportToLatex(listModel));
         bar.add(saveMenu);
+        JMenu viewMenu = new JMenu("View");
+        viewMenu.add(new ScaleToFitAction(listModel, listViewer));
+        bar.add(viewMenu);
         setJMenuBar(bar);
         pack();
     }
