@@ -33,7 +33,6 @@ import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import javax.swing.JFileChooser;
 
 /**
  *
@@ -41,7 +40,6 @@ import javax.swing.JFileChooser;
  */
 public class SaveEmbeddedPregraphAction extends AbstractSaveAction {
 
-    private JFileChooser chooser;
     private EmbeddedPregraphListModel listModel;
 
     public SaveEmbeddedPregraphAction(EmbeddedPregraphListModel listModel) {
