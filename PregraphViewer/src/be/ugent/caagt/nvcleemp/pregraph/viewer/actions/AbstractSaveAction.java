@@ -28,6 +28,9 @@
 package be.ugent.caagt.nvcleemp.pregraph.viewer.actions;
 
 import be.ugent.caagt.nvcleemp.pregraph.viewer.Viewer;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences.Preference;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferencesListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -42,19 +45,40 @@ import javax.swing.JOptionPane;
  * @author nvcleemp
  */
 public abstract class AbstractSaveAction extends AbstractAction {
+
     private JFileChooser chooser;
+    private PregraphViewerPreferencesListener preferencesListener =
+            new PregraphViewerPreferencesListener() {
+
+        public void preferenceChanged(Preference preference) {
+            String dir = PregraphViewerPreferences.getInstance()
+                    .getStringPreference(Preference.CURRENT_DIRECTORY);
+            if (chooser != null && dir != null) {
+                chooser.setCurrentDirectory(new File(dir));
+            }
+        }
+    };
 
     public AbstractSaveAction(String name) {
         super(name);
+        PregraphViewerPreferences.getInstance().addListener(preferencesListener);
     }
 
     public void actionPerformed(ActionEvent e) {
         try {
             if (chooser == null) {
-                chooser = new JFileChooser();
+                String dir = PregraphViewerPreferences.getInstance()
+                        .getStringPreference(Preference.CURRENT_DIRECTORY);
+                if (dir == null) {
+                    chooser = new JFileChooser();
+                } else {
+                    chooser = new JFileChooser(new File(dir));
+                }
+                
             }
             if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
                 File file = handleFile(chooser.getSelectedFile());
+                PregraphViewerPreferences.getInstance().setStringPreference(Preference.CURRENT_DIRECTORY, file.getParent());
                 if (!file.exists() || JOptionPane.showConfirmDialog(null, "Overwrite file " + file.toString(), "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     saveToFile(file);
                 }

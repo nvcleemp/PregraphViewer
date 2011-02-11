@@ -35,11 +35,15 @@ import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ScaleToFitEmbedder;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.io.EmbeddedPregraphXmlReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.DefaultEmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences.Preference;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferencesListener;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;
@@ -72,8 +76,32 @@ public class Viewer extends JFrame {
 
             JFileChooser chooser = new JFileChooser();
 
+            private PregraphViewerPreferencesListener preferencesListener =
+                    new PregraphViewerPreferencesListener() {
+
+                public void preferenceChanged(Preference preference) {
+                    String dir = PregraphViewerPreferences.getInstance()
+                            .getStringPreference(Preference.CURRENT_DIRECTORY);
+                    if (chooser != null && dir != null) {
+                        chooser.setCurrentDirectory(new File(dir));
+                    }
+                }
+            };
+
+            {
+                String dir = PregraphViewerPreferences.getInstance()
+                            .getStringPreference(Preference.CURRENT_DIRECTORY);
+                if (dir != null) {
+                    chooser.setCurrentDirectory(new File(dir));
+                }
+                PregraphViewerPreferences.getInstance().addListener(preferencesListener);
+            }
+
             public void actionPerformed(ActionEvent e) {
                 if(chooser.showOpenDialog(Viewer.this)==JFileChooser.APPROVE_OPTION){
+                    PregraphViewerPreferences.getInstance().setStringPreference(
+                            Preference.CURRENT_DIRECTORY,
+                            chooser.getSelectedFile().getParent());
                     PregraphReader pregraphReader = null;
                     try {
                         pregraphReader = new PregraphReader(new FileInputStream(chooser.getSelectedFile()));
@@ -95,12 +123,34 @@ public class Viewer extends JFrame {
         menu.add(new AbstractAction("Open embedded pregraph list") {
 
             JFileChooser chooser = new JFileChooser();
+
+            private PregraphViewerPreferencesListener preferencesListener =
+                    new PregraphViewerPreferencesListener() {
+
+                public void preferenceChanged(Preference preference) {
+                    String dir = PregraphViewerPreferences.getInstance()
+                            .getStringPreference(Preference.CURRENT_DIRECTORY);
+                    if (chooser != null && dir != null) {
+                        chooser.setCurrentDirectory(new File(dir));
+                    }
+                }
+            };
+
             {
                 chooser.setFileFilter(new FileNameExtensionFilter("Embedded Pregraph XML", "epxml"));
+                String dir = PregraphViewerPreferences.getInstance()
+                            .getStringPreference(Preference.CURRENT_DIRECTORY);
+                if (dir != null) {
+                    chooser.setCurrentDirectory(new File(dir));
+                }
+                PregraphViewerPreferences.getInstance().addListener(preferencesListener);
             }
 
             public void actionPerformed(ActionEvent e) {
                 if(chooser.showOpenDialog(Viewer.this)==JFileChooser.APPROVE_OPTION){
+                    PregraphViewerPreferences.getInstance().setStringPreference(
+                            Preference.CURRENT_DIRECTORY,
+                            chooser.getSelectedFile().getParent());
                     EmbeddedPregraphXmlReader pregraphReader = new EmbeddedPregraphXmlReader(chooser.getSelectedFile());
                     EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(pregraphReader);
                     ViewerFrame frame = new ViewerFrame(chooser.getSelectedFile().getName(), listModel);
