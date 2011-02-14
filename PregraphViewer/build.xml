@@ -74,8 +74,82 @@
 
     <property file="build.properties"/>
 
+    <property file="project.properties"/>
+
     <taskdef resource="be/ugent/caagt/antext/tasks.properties" classpath="${ant.AntExtensions.classpath}" />
     
+    <!-- Minimal Java version -->
+    <property name="jre.minversion" value="1.5.0"/>
+
+    <taskdef name="launch4j"
+         classname="net.sf.launch4j.ant.Launch4jTask"
+         classpath="${ant.launch4j.classpath}/launch4j.jar:${ant.launch4j.classpath}/lib/xstream.jar" />
+
+    <taskdef resource="be/ugent/caagt/antext/tasks.properties"
+             classpath="${ant.AntExtensions.classpath}" />
+
+    <target name="-post-jar" depends="-forunix,-forwindows,-src-jar" />
+
+    <target name="-forunix">
+        <tar destfile="dist/PregraphViewer-${PregraphViewer.version}-linux.tar.gz" compression="gzip">
+	    <tarfileset dir="dist/lib" prefix="PregraphViewer/lib"/>
+	    <tarfileset dir="etc/graphfiles" prefix="PregraphViewer/graphfiles"/>
+	    <tarfileset file="dist/PregraphViewer.jar" prefix="PregraphViewer"/>
+	    <tarfileset file="COPYRIGHT.txt" prefix="PregraphViewer"/>
+	    <tarfileset file="LICENSE.txt" prefix="PregraphViewer"/>
+            <tarfileset file="etc/linux/PregraphViewer.sh" prefix="PregraphViewer" mode="755"/>
+        </tar>
+    </target>
+
+    <target name="-forwindows">
+        <mkdir dir="dist/windows"/>
+        <launch4j>
+            <config outfile="dist/windows/PregraphViewer.exe"
+                    headertype="gui"
+                    dontwrapjar="true"
+                    icon="etc/icons/PregraphViewer.ico"
+                    errtitle="PregraphViewer ${PregraphViewer.version}">
+                <classPath mainClass="be.ugent.caagt.nvcleemp.pregraph.viewer.Viewer">
+                    <cp>PregraphViewer.jar</cp>
+                    <cp>lib/*.jar</cp>
+                </classPath>
+                <jre minversion="${jre.minversion}"/>
+            </config>
+        </launch4j>
+
+        <copy todir="dist/windows/lib">
+            <fileset dir="dist/lib"/>
+        </copy>
+        <copy todir="dist/windows/graphfiles">
+            <fileset dir="etc/graphfiles"/>
+        </copy>
+        <copy file="dist/PregraphViewer.jar" todir="dist/windows"/>
+
+        <exec executable="${ant.makensis.path}">
+            <arg value="-V1"/>
+            <arg value="-XOutFile ../../dist/windows/PregraphViewer-${PregraphViewer.version}-installer.exe"/> <!-- must be a single value! -->
+            <arg file="etc/windows/package_windows.nsi"/>
+        </exec>
+
+        <copy file="dist/windows/PregraphViewer-${PregraphViewer.version}-installer.exe" todir="dist"/>
+
+        <delete dir="dist/windows"/>
+    </target>
+
+    <target name="-src-build" depends="init,license-headers">
+        <mkdir dir="${build.dir}/src"/>
+        <copy todir="${build.dir}/src">
+            <fileset dir="${src.dir}"/>
+        </copy>
+    </target>
+
+    <target name="-src-jar" depends="-pre-pre-jar,-src-build">
+        <jar jarfile="dist/PregraphViewer-${PregraphViewer.version}.src.jar" compress="${jar.compress}"
+             basedir="${build.dir}/src">
+            <metainf dir="${basedir}" includes="COPYRIGHT.txt,LICENSE.txt"/>
+        </jar>
+    </target>
+
     <target name="license-headers" depends="init"
         description="Adjust file headers to contain license">
         <replaceHeader header="etc/license_header.txt"
