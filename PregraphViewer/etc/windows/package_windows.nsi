@@ -36,7 +36,7 @@ Section "-PregraphViewer"
   SetOutPath $INSTDIR
 
   File "../../dist/windows/PregraphViewer.exe"
-  File "../../dist/windows/PregraphViewer.jar"
+  File "../../dist/windows/PregraphViewer-*.jar"
   File "../../COPYRIGHT.txt"
   File "../../LICENSE.txt"
   File /r "../../dist/windows/lib"
