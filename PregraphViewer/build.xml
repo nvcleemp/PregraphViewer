@@ -88,7 +88,7 @@
     <taskdef resource="be/ugent/caagt/antext/tasks.properties"
              classpath="${ant.AntExtensions.classpath}" />
 
-    <target name="-post-jar" depends="-forunix,-forwindows,-src-jar" />
+    <target name="-post-jar" depends="-forunix,-forwindows,-src-jar,-javadoc-jar" />
 
     <target name="-forunix">
         <tar destfile="dist/PregraphViewer-${PregraphViewer.version}-linux.tar.gz" compression="gzip">
@@ -148,6 +148,11 @@
              basedir="${build.dir}/src">
             <metainf dir="${basedir}" includes="COPYRIGHT.txt,LICENSE.txt"/>
         </jar>
+    </target>
+
+    <target name="-javadoc-jar" depends="-pre-pre-jar,-javadoc-build">
+        <jar jarfile="dist/PregraphViewer-${PregraphViewer.version}.javadoc.jar" compress="${jar.compress}"
+             basedir="${dist.javadoc.dir}"/>
     </target>
 
     <target name="license-headers" depends="init"
