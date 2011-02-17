@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
@@ -119,6 +120,15 @@ public class PregraphViewerPreferences {
     private void firePreferenceChanged(Preference preference) {
         for(PregraphViewerPreferencesListener listener : listeners)
             listener.preferenceChanged(preference);
+    }
+
+    public void reset() throws BackingStoreException{
+        userPreferences.clear();
+    }
+
+    public void delete() throws BackingStoreException{
+        userPreferences.removeNode();
+        userPreferences.flush();
     }
 
     public static void main(String[] args) {

@@ -129,6 +129,18 @@
             </config>
         </launch4j>
 
+        <launch4j>
+            <config outfile="dist/windows/PreferenceRemover.exe"
+                    headertype="gui"
+                    dontwrapjar="true">
+                <classPath mainClass="be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferenceRemover">
+                    <cp>PregraphViewer.jar</cp>
+                    <cp>lib/*.jar</cp>
+                </classPath>
+                <jre minversion="${jre.minversion}"/>
+            </config>
+        </launch4j>
+
         <copy todir="dist/windows/lib">
             <fileset dir="dist/lib"/>
         </copy>

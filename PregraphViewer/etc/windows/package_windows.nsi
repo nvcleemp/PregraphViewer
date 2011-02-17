@@ -74,7 +74,7 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer"
   DeleteRegKey HKLM SOFTWARE\NSIS_PregraphViewer
 
-  ExecWait "" "$INSTDIR\PreferenceRemover.exe"
+  ExecWait "$INSTDIR\PreferenceRemover.exe"
   #wait because we need to remove this file and the jar it depends on as well
 
   # Remove files and uninstaller
