@@ -37,6 +37,7 @@ Section "-PregraphViewer"
 
   File "../../dist/windows/PregraphViewer.exe"
   File "../../dist/windows/PreferenceSetter.exe"
+  File "../../dist/windows/PreferenceRemover.exe"
   File "../../dist/windows/${JARFILE}"
   File "../../COPYRIGHT.txt"
   File "../../LICENSE.txt"
@@ -53,7 +54,7 @@ Section "-PregraphViewer"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "NoRepair" 1
 
   ExecShell "" "$INSTDIR\PreferenceSetter.exe"
-   Delete $INSTDIR\PreferenceSetter.exe
+  Delete $INSTDIR\PreferenceSetter.exe
   WriteUninstaller "uninstall.exe"
 
 SectionEnd
@@ -72,21 +73,18 @@ Section "Uninstall"
   # Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer"
   DeleteRegKey HKLM SOFTWARE\NSIS_PregraphViewer
-  DeleteRegKey HKU "Software\JavaSoft\Prefs\be\ugent\caagt\nvcleemp\pregraph\viewer\preferences"
-  DeleteRegKey /ifempty HKU "Software\JavaSoft\Prefs\be\ugent\caagt\nvcleemp\pregraph\viewer"
-  DeleteRegKey /ifempty HKU "Software\JavaSoft\Prefs\be\ugent\caagt\nvcleemp\pregraph"
-  DeleteRegKey /ifempty HKU "Software\JavaSoft\Prefs\be\ugent\caagt\nvcleemp"
-  DeleteRegKey /ifempty HKU "Software\JavaSoft\Prefs\be\ugent\caagt"
-  DeleteRegKey /ifempty HKU "Software\JavaSoft\Prefs\be\ugent"
-  DeleteRegKey /ifempty HKU "Software\JavaSoft\Prefs\be"
+
+  ExecWait "" "$INSTDIR\PreferenceRemover.exe"
+  #wait because we need to remove this file and the jar it depends on as well
 
   # Remove files and uninstaller
   Delete $INSTDIR\PregraphViewer.exe
+  Delete $INSTDIR\PreferenceRemover.exe
   Delete $INSTDIR\${JARFILE}
   Delete $INSTDIR\uninstall.exe
   Delete $INSTDIR\COPYRIGHT.txt
   Delete $INSTDIR\LICENSE.txt
-  RMDir /r /REBOOTOK "$INSTDIR\libs\"
+  RMDir /r /REBOOTOK "$INSTDIR\lib\"
   RMDir /r /REBOOTOK "$INSTDIR\graphfiles\"
 
   # Remove shortcuts, if any
