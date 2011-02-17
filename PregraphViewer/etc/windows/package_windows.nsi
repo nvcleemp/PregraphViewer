@@ -82,7 +82,7 @@ Section "Uninstall"
 
   # Remove files and uninstaller
   Delete $INSTDIR\PregraphViewer.exe
-  Delete $INSTDIR\PregraphViewer.jar
+  Delete $INSTDIR\${JARFILE}
   Delete $INSTDIR\uninstall.exe
   Delete $INSTDIR\COPYRIGHT.txt
   Delete $INSTDIR\LICENSE.txt
