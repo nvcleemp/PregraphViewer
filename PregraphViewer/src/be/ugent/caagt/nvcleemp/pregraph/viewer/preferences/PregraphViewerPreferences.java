@@ -27,8 +27,12 @@
 
 package be.ugent.caagt.nvcleemp.pregraph.viewer.preferences;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 /**
@@ -115,6 +119,21 @@ public class PregraphViewerPreferences {
     private void firePreferenceChanged(Preference preference) {
         for(PregraphViewerPreferencesListener listener : listeners)
             listener.preferenceChanged(preference);
+    }
+
+    public static void main(String[] args) {
+        //set default values for the preferences
+        File graphfiles = new File(".", "graphfiles");
+        
+        try {
+            INSTANCE.setStringPreference(Preference.CURRENT_DIRECTORY, graphfiles.getCanonicalPath());
+        } catch (IOException ex) {
+            Logger.getLogger(PregraphViewerPreferences.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(1);
+        }
+
+        System.exit(0);
+
     }
     
 }
