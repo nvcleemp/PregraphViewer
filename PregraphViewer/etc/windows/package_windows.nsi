@@ -36,13 +36,14 @@ Section "-PregraphViewer"
   SetOutPath $INSTDIR
 
   File "../../dist/windows/PregraphViewer.exe"
-  File "../../dist/windows/PregraphViewer-*.jar"
+  File "../../dist/windows/PreferenceSetter.exe"
+  File "../../dist/windows/${JARFILE}"
   File "../../COPYRIGHT.txt"
   File "../../LICENSE.txt"
   File /r "../../dist/windows/lib"
   File /r "../../dist/windows/graphfiles"
 
-  WriteRegStr HKLM SOFTWARE\NSIS_PG "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM SOFTWARE\NSIS_PregraphViewer "Install_Dir" "$INSTDIR"
 
   # write Windows Add/Remove uninstall information
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "DisplayName" "PregraphViewer -- Visualizer for pregraphs"
@@ -51,7 +52,8 @@ Section "-PregraphViewer"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "NoRepair" 1
 
-  WriteRegStr HKU "Software\JavaSoft\Prefs\be\ugent\caagt\nvcleemp\pregraph\viewer\preferences" "gui.currentdir" "$INSTDIR\graphfiles"
+  ExecShell "" "$INSTDIR\PreferenceSetter.exe"
+   Delete $INSTDIR\PreferenceSetter.exe
   WriteUninstaller "uninstall.exe"
 
 SectionEnd

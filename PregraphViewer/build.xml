@@ -117,17 +117,31 @@
             </config>
         </launch4j>
 
+        <launch4j>
+            <config outfile="dist/windows/PreferenceSetter.exe"
+                    headertype="gui"
+                    dontwrapjar="true">
+                <classPath mainClass="be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences">
+                    <cp>PregraphViewer.jar</cp>
+                    <cp>lib/*.jar</cp>
+                </classPath>
+                <jre minversion="${jre.minversion}"/>
+            </config>
+        </launch4j>
+
         <copy todir="dist/windows/lib">
             <fileset dir="dist/lib"/>
         </copy>
         <copy todir="dist/windows/graphfiles">
             <fileset dir="etc/graphfiles"/>
         </copy>
-        <copy file="${dist.jar}" todir="dist/windows"/>
+        <copy file="${dist.jar}" tofile="dist/windows/PregraphViewer.jar"/>
 
         <exec executable="${ant.makensis.path}">
             <arg value="-V1"/>
             <arg value="-XOutFile ../../dist/windows/PregraphViewer-${PregraphViewer.version}-installer.exe"/> <!-- must be a single value! -->
+<!--            <arg value="-DJARFILE=PregraphViewer-${PregraphViewer.version}.jar"/> -->
+            <arg value="-DJARFILE=PregraphViewer.jar"/>
             <arg file="etc/windows/package_windows.nsi"/>
         </exec>
 
