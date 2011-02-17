@@ -66,7 +66,7 @@ public class Viewer extends JFrame {
     private final JMenu windowsMenu;
 
     public Viewer(){
-        super("Pregraph Viewer (c) NVC 2010-2011");
+        super("Pregraph Viewer (c) UGent 2010-2011");
         setLayout(new GridLayout(1,1));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
