@@ -53,7 +53,7 @@ Section "-PregraphViewer"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "NoRepair" 1
 
-  ExecShell "" "$INSTDIR\PreferenceSetter.exe"
+  ExecWait "$INSTDIR\PreferenceSetter.exe"
   Delete $INSTDIR\PreferenceSetter.exe
   WriteUninstaller "uninstall.exe"
 
