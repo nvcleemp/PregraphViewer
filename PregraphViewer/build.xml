@@ -88,7 +88,12 @@
     <taskdef resource="be/ugent/caagt/antext/tasks.properties"
              classpath="${ant.AntExtensions.classpath}" />
 
-    <target name="-post-jar" depends="-forunix,-forwindows,-src-jar,-javadoc-jar" />
+    <taskdef name="jarbundler"
+         classname="net.sourceforge.jarbundler.JarBundler"
+         classpath="${ant.JarBundler.classpath}"/>
+
+
+    <target name="-post-jar" depends="-forunix,-forwindows,-forosx,-src-jar,-javadoc-jar" />
 
     <target name="-forunix">
         <tar destfile="dist/PregraphViewer-${PregraphViewer.version}-linux.tar.gz" compression="gzip">
@@ -160,6 +165,42 @@
         <copy file="dist/windows/PregraphViewer-${PregraphViewer.version}-installer.exe" todir="dist"/>
 
         <delete dir="dist/windows"/>
+    </target>
+
+    <target name="-forosx">
+        <jarbundler dir="dist"
+                    name="Pregraph Viewer"
+                    mainclass="be.ugent.caagt.nvcleemp.pregraph.viewer.Viewer"
+                    version="${PregraphViewer.version}"
+                    build="${PregraphViewer.version}"
+                    stubfile="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub"
+                    icon="etc/icons/PregraphViewer.icns"
+                    jvmversion="1.5+">
+            <jarfileset dir="dist/lib"/>
+            <jarfileset file="dist/PregraphViewer-${PregraphViewer.version}.jar"/>
+            <resourcefileset dir="." includes="COPYRIGHT.txt,LICENSE.txt"/>
+            <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+        </jarbundler>
+        
+        <delete file="dist/Pregraph Viewer.app/Contents/MacOS/JavaApplicationStub"/>
+        <exec executable="ln">
+            <arg line="-s /System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub"/>
+            <arg value="dist/Pregraph Viewer.app/Contents/MacOS/JavaApplicationStub"/>
+        </exec>
+        <!-- TODO: test this on a platform different from Mac OS X -->
+
+        <tar destfile="dist/PregraphViewer-${PregraphViewer.version}-osx.tar.gz" compression="gzip">
+            <tarfileset dir="dist/" prefix="PregraphViewer">
+                <include name="Pregraph Viewer.app/**"/>
+                <exclude name="Pregraph Viewer.app/Contents/MacOS/JavaApplicationStub"/>
+            </tarfileset>
+            <tarfileset dir="dist/" mode="755" prefix="PregraphViewer">
+                <include name="Pregraph Viewer.app/Contents/MacOS/JavaApplicationStub"/>
+            </tarfileset>
+	    <tarfileset dir="etc/graphfiles" prefix="PregraphViewer/graphfiles"/>
+            <tarfileset file="LICENSE.txt" prefix="PregraphViewer"/>
+            <tarfileset file="COPYRIGHT.txt" prefix="PregraphViewer"/>
+        </tar>
     </target>
 
     <target name="-src-build" depends="init,license-headers">
