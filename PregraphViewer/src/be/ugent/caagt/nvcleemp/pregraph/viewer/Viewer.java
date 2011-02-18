@@ -189,7 +189,20 @@ public class Viewer extends JFrame {
     }
 
     public static void main(String[] args) {
-        new Viewer();
+        Viewer viewer = new Viewer();
+        for (String string : args) {
+            File f = new File(string);
+            if(f.exists()){
+                if(string.endsWith(".epxml")){
+                    viewer.openEmbeddedPregraphXml(f);
+                } else if(string.endsWith(".code")){
+                    viewer.openPregraphCode(f);
+                } else {
+                    //default to pregraph code for now
+                    viewer.openPregraphCode(f);
+                }
+            }
+        }
     }
 
     private static class WindowAction extends AbstractAction implements WindowListener{
