@@ -43,6 +43,7 @@ Section "-PregraphViewer"
   File "../../LICENSE.txt"
   File /r "../../dist/windows/lib"
   File /r "../../dist/windows/graphfiles"
+  File /r "../../etc/icons/PregraphViewer.ico"
 
   WriteRegStr HKLM SOFTWARE\NSIS_PregraphViewer "Install_Dir" "$INSTDIR"
 
@@ -52,6 +53,17 @@ Section "-PregraphViewer"
   WriteRegStr HKLM Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "DisplayVersion" "1.0"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer" "NoRepair" 1
+
+  # write file extensions
+  WriteRegStr HKCR ".code" "" "Pregraph.Code"
+  WriteRegStr HKCR "Pregraph.Code" "" "Pregraph Code"
+  WriteRegStr HKCR "Pregraph.Code\shell\open\command" "" '"$INSTDIR\PregraphViewer.exe" "%1"'
+  WriteRegStr HKCR "Pregraph.Code\DefaultIcon" "" "$INSTDIR\PregraphViewer.ico,0"
+
+  WriteRegStr HKCR ".epxml" "" "Embedded.Pregraph.XML"
+  WriteRegStr HKCR "Embedded.Pregraph.XML" "" "Embedded Pregraph XML"
+  WriteRegStr HKCR "Embedded.Pregraph.XML\shell\open\command" "" '"$INSTDIR\PregraphViewer.exe" "%1"'
+  WriteRegStr HKCR "Embedded.Pregraph.XML\DefaultIcon" "" "$INSTDIR\PregraphViewer.ico,0"
 
   ExecWait "$INSTDIR\PreferenceSetter.exe"
   Delete $INSTDIR\PreferenceSetter.exe
@@ -73,11 +85,20 @@ Section "Uninstall"
   # Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PregraphViewer"
   DeleteRegKey HKLM SOFTWARE\NSIS_PregraphViewer
+  DeleteRegKey HKCR "Pregraph.Code\DefaultIcon"
+  DeleteRegKey HKCR "Pregraph.Code\shell\open\command"
+  DeleteRegKey HKCR "Pregraph.Code"
+  DeleteRegKey HKCR ".code"
+  DeleteRegKey HKCR "Embedded.Pregraph.XML\DefaultIcon"
+  DeleteRegKey HKCR "Embedded.Pregraph.XML\shell\open\command"
+  DeleteRegKey HKCR "Embedded.Pregraph.XML"
+  DeleteRegKey HKCR ".epxml"
 
   ExecWait "$INSTDIR\PreferenceRemover.exe"
   #wait because we need to remove this file and the jar it depends on as well
 
   # Remove files and uninstaller
+  Delete $INSTDIR\PregraphViewer.ico
   Delete $INSTDIR\PregraphViewer.exe
   Delete $INSTDIR\PreferenceRemover.exe
   Delete $INSTDIR\${JARFILE}

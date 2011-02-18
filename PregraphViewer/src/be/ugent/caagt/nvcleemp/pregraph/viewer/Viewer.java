@@ -35,6 +35,7 @@ import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ScaleToFitEmbedder;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.io.EmbeddedPregraphXmlReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.DefaultEmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.macosx.MacOsXHandler;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences.Preference;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferencesListener;
@@ -46,6 +47,8 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -62,6 +65,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author nvcleemp
  */
 public class Viewer extends JFrame {
+
+    public static boolean MAC_OS_X = (System.getProperty("os.name").toLowerCase().startsWith("mac os x"));
 
     private final JMenu windowsMenu;
 
@@ -178,6 +183,7 @@ public class Viewer extends JFrame {
             Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (pregraphReader != null) {
+            //TODO: move this to a worker and provide a progress monitor
             EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(pregraphReader);
             EmbedderRunner.singleRunEmbedder(new RandomEmbedder(), listModel);
             EmbedderRunner.repeatedRunEmbedder(50, new ForceEmbedder(), listModel);
@@ -188,21 +194,32 @@ public class Viewer extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        Viewer viewer = new Viewer();
-        for (String string : args) {
-            File f = new File(string);
+    public void openFiles(List<File> files){
+        for (File f : files) {
             if(f.exists()){
-                if(string.endsWith(".epxml")){
-                    viewer.openEmbeddedPregraphXml(f);
-                } else if(string.endsWith(".code")){
-                    viewer.openPregraphCode(f);
+                if(f.getName().endsWith(".epxml")){
+                    openEmbeddedPregraphXml(f);
+                } else if(f.getName().endsWith(".code")){
+                    openPregraphCode(f);
                 } else {
                     //default to pregraph code for now
-                    viewer.openPregraphCode(f);
+                    openPregraphCode(f);
                 }
             }
         }
+    }
+
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
+    public static void main(String[] args) {
+        Viewer viewer = new Viewer();
+        if(MAC_OS_X){
+            new MacOsXHandler(viewer);
+        }
+        List<File> files = new ArrayList<File>();
+        for (String string : args) {
+            files.add(new File(string));
+        }
+        viewer.openFiles(files);
     }
 
     private static class WindowAction extends AbstractAction implements WindowListener{

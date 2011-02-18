@@ -113,7 +113,8 @@
                     headertype="gui"
                     dontwrapjar="true"
                     icon="etc/icons/PregraphViewer.ico"
-                    errtitle="PregraphViewer ${PregraphViewer.version}">
+                    errtitle="PregraphViewer ${PregraphViewer.version}"
+                    chdir=".">
                 <classPath mainClass="be.ugent.caagt.nvcleemp.pregraph.viewer.Viewer">
                     <cp>PregraphViewer.jar</cp>
                     <cp>lib/*.jar</cp>
@@ -180,6 +181,8 @@
             <jarfileset file="dist/PregraphViewer-${PregraphViewer.version}.jar"/>
             <resourcefileset dir="." includes="COPYRIGHT.txt,LICENSE.txt"/>
             <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+            <documenttype name="Pregraph Code" extensions="code" iconfile="etc/icons/PregraphViewer.icns" role="Viewer"/>
+            <documenttype name="Embedded Pregraph XML" extensions="epxml" role="Viewer"/>
         </jarbundler>
         
         <delete file="dist/Pregraph Viewer.app/Contents/MacOS/JavaApplicationStub"/>
