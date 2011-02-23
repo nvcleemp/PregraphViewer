@@ -35,6 +35,7 @@ import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ScaleToFitEmbedder;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.io.EmbeddedPregraphXmlReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.DefaultEmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.macosx.MacOsXHandler;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferences.Preference;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.preferences.PregraphViewerPreferencesListener;
@@ -46,6 +47,8 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -62,6 +65,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author nvcleemp
  */
 public class Viewer extends JFrame {
+
+    public static boolean MAC_OS_X = (System.getProperty("os.name").toLowerCase().startsWith("mac os x"));
 
     private final JMenu windowsMenu;
 
@@ -102,21 +107,7 @@ public class Viewer extends JFrame {
                     PregraphViewerPreferences.getInstance().setStringPreference(
                             Preference.CURRENT_DIRECTORY,
                             chooser.getSelectedFile().getParent());
-                    PregraphReader pregraphReader = null;
-                    try {
-                        pregraphReader = new PregraphReader(new FileInputStream(chooser.getSelectedFile()));
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    if(pregraphReader!=null){
-                        EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(pregraphReader);
-                        EmbedderRunner.singleRunEmbedder(new RandomEmbedder(), listModel);
-                        EmbedderRunner.repeatedRunEmbedder(50, new ForceEmbedder(), listModel);
-                        EmbedderRunner.singleRunEmbedder(new ScaleToFitEmbedder(500,400), listModel);
-                        ViewerFrame frame = new ViewerFrame(chooser.getSelectedFile().getName(), listModel);
-                        registerFrame(frame);
-                        frame.setVisible(true);
-                    }
+                    openPregraphCode(chooser.getSelectedFile());
                 }
             }
         });
@@ -151,11 +142,7 @@ public class Viewer extends JFrame {
                     PregraphViewerPreferences.getInstance().setStringPreference(
                             Preference.CURRENT_DIRECTORY,
                             chooser.getSelectedFile().getParent());
-                    EmbeddedPregraphXmlReader pregraphReader = new EmbeddedPregraphXmlReader(chooser.getSelectedFile());
-                    EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(pregraphReader);
-                    ViewerFrame frame = new ViewerFrame(chooser.getSelectedFile().getName(), listModel);
-                    registerFrame(frame);
-                    frame.setVisible(true);
+                    openEmbeddedPregraphXml(chooser.getSelectedFile());
                 }
             }
         });
@@ -180,8 +167,59 @@ public class Viewer extends JFrame {
         windowsMenu.add(new WindowAction(frame));
     }
 
+    private void openEmbeddedPregraphXml(File f) {
+        EmbeddedPregraphXmlReader pregraphReader = new EmbeddedPregraphXmlReader(f);
+        EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(pregraphReader);
+        ViewerFrame frame = new ViewerFrame(f.getName(), listModel);
+        registerFrame(frame);
+        frame.setVisible(true);
+    }
+
+    private void openPregraphCode(File f) {
+        PregraphReader pregraphReader = null;
+        try {
+            pregraphReader = new PregraphReader(new FileInputStream(f));
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (pregraphReader != null) {
+            //TODO: move this to a worker and provide a progress monitor
+            EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(pregraphReader);
+            EmbedderRunner.singleRunEmbedder(new RandomEmbedder(), listModel);
+            EmbedderRunner.repeatedRunEmbedder(50, new ForceEmbedder(), listModel);
+            EmbedderRunner.singleRunEmbedder(new ScaleToFitEmbedder(500, 400), listModel);
+            ViewerFrame frame = new ViewerFrame(f.getName(), listModel);
+            registerFrame(frame);
+            frame.setVisible(true);
+        }
+    }
+
+    public void openFiles(List<File> files){
+        for (File f : files) {
+            if(f.exists()){
+                if(f.getName().endsWith(".epxml")){
+                    openEmbeddedPregraphXml(f);
+                } else if(f.getName().endsWith(".code")){
+                    openPregraphCode(f);
+                } else {
+                    //default to pregraph code for now
+                    openPregraphCode(f);
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public static void main(String[] args) {
-        new Viewer();
+        Viewer viewer = new Viewer();
+        if(MAC_OS_X){
+            new MacOsXHandler(viewer);
+        }
+        List<File> files = new ArrayList<File>();
+        for (String string : args) {
+            files.add(new File(string));
+        }
+        viewer.openFiles(files);
     }
 
     private static class WindowAction extends AbstractAction implements WindowListener{
