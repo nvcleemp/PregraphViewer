@@ -12,4 +12,4 @@ do
   CLASSPATH=$JAR:$CLASSPATH
 done
 
-java be.ugent.caagt.nvcleemp.pregraph.viewer.Viewer
+java be.ugent.caagt.nvcleemp.pregraph.viewer.Viewer $*
