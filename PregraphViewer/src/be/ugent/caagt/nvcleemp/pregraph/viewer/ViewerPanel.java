@@ -43,6 +43,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.JPanel;
 
 /**
@@ -54,6 +58,9 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
     private VertexPainter vertexPainter;
     private EdgePainter edgePainter;
     private Vertex selectedVertex;
+    private List<Vertex> selectedVertexNeighbours = new ArrayList<Vertex>();
+    private Map<Vertex, Integer> oldXCoordinates = new HashMap<Vertex, Integer>();
+    private Map<Vertex, Integer> oldYCoordinates = new HashMap<Vertex, Integer>();
 
     public ViewerPanel() {
         vertexPainter = new PregraphNumberedVertexPainter();
@@ -112,7 +119,42 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
         @Override
         public void mouseDragged(MouseEvent e) {
             if(selectedVertex!=null){
-                graph.setCoordinates(selectedVertex, e.getX()-getWidth()/2, e.getY()-getHeight()/2);
+                if(e.isShiftDown()){
+                    oldXCoordinates.clear();
+                    oldYCoordinates.clear();
+                    int xShift = (e.getX()-getWidth()/2) - graph.getX(selectedVertex);
+                    int yShift = (e.getY()-getHeight()/2) - graph.getY(selectedVertex);
+                    for (Vertex vertex : selectedVertexNeighbours) {
+                        if(Vertex.VertexType.LOOP_VERTEX.equals(vertex.getType()) ||
+                                Vertex.VertexType.SEMI_EDGE_VERTEX.equals(vertex.getType())){
+                            graph.shiftCoordinates(vertex, xShift, yShift);
+                        }
+                    }
+                    graph.shiftCoordinates(selectedVertex, xShift, yShift);
+                } else if(e.isControlDown()) {
+                    int yShift = (e.getY()-getHeight()/2) - graph.getY(selectedVertex);
+                    for (Vertex vertex : selectedVertexNeighbours) {
+                        if(Vertex.VertexType.LOOP_VERTEX.equals(vertex.getType()) ||
+                                Vertex.VertexType.SEMI_EDGE_VERTEX.equals(vertex.getType())){
+                            if(oldXCoordinates.containsKey(vertex) && oldYCoordinates.containsKey(vertex)){
+                                int oldX = oldXCoordinates.get(vertex) - graph.getX(selectedVertex);
+                                int oldY = oldYCoordinates.get(vertex) - graph.getY(selectedVertex);
+                                int newX = (int)(oldX*Math.cos(0.1*yShift) - oldY*Math.sin(0.1*yShift));
+                                int newY = (int)(oldX*Math.sin(0.1*yShift) + oldY*Math.cos(0.1*yShift));
+                                graph.setCoordinates(vertex, graph.getX(selectedVertex)+newX, graph.getY(selectedVertex) + newY);
+                            } else {
+                                for (Vertex otherVertex : selectedVertexNeighbours) {
+                                    oldXCoordinates.put(otherVertex, graph.getX(otherVertex));
+                                    oldYCoordinates.put(otherVertex, graph.getY(otherVertex));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    oldXCoordinates.clear();
+                    oldYCoordinates.clear();
+                    graph.setCoordinates(selectedVertex, e.getX()-getWidth()/2, e.getY()-getHeight()/2);
+                }
             }
         }
 
@@ -122,7 +164,12 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
                 for (Vertex vertex : graph.getVertices()) {
                     if(((graph.getX(vertex)-e.getX()+getWidth()/2)*(graph.getX(vertex)-e.getX()+getWidth()/2)<36) &&
                             ((graph.getY(vertex)-e.getY()+getHeight()/2)*(graph.getY(vertex)-e.getY()+getHeight()/2)<36)){
-                            selectedVertex = vertex;
+                        selectedVertex = vertex;
+                        for (Edge edge : selectedVertex.getEdges()) {
+                            Vertex otherVertex = edge.getOtherVertex(selectedVertex);
+                            selectedVertexNeighbours.add(otherVertex);
+                        }
+                        break;
                     }
                 }
             }
@@ -131,6 +178,9 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
         @Override
         public void mouseReleased(MouseEvent e) {
             selectedVertex = null;
+            selectedVertexNeighbours.clear();
+            oldXCoordinates.clear();
+            oldYCoordinates.clear();
         }
         
     }
