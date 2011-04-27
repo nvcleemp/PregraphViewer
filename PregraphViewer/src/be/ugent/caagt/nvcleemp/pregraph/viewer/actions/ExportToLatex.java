@@ -41,6 +41,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -59,9 +60,13 @@ public class ExportToLatex extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
+        final boolean includeNumbers =
+                (JOptionPane.showConfirmDialog(latexExportFrame,
+                "Include vertex numbers", "LaTeX export",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION);
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                latexExportFrame.setText(EmbeddedPregraphLatexExport.export(listModel.getSelectedGraph()));
+                latexExportFrame.setText(EmbeddedPregraphLatexExport.export(listModel.getSelectedGraph(), includeNumbers));
                 latexExportFrame.setVisible(true);
             }
         });

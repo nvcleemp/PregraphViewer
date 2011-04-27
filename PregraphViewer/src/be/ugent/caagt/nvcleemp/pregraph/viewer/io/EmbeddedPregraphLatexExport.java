@@ -30,6 +30,7 @@ package be.ugent.caagt.nvcleemp.pregraph.viewer.io;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Edge;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Vertex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbeddedPregraph;
+import java.awt.Color;
 
 /**
  *
@@ -45,11 +46,29 @@ public class EmbeddedPregraphLatexExport {
     }
 
     public static String export(EmbeddedPregraph pregraph){
-        StringBuilder latex = new StringBuilder("\\begin{tikzpicture}[scale=0.01]\n");
+        return export(pregraph, false);
+    }
+
+    public static String export(EmbeddedPregraph pregraph, boolean includeAnnotations){
+        StringBuilder latex = new StringBuilder("\\begin{tikzpicture}[scale=0.02]\n");
+        for (int i = 0; i < pregraph.getColourProvider().getColourCount(); i++) {
+            Color c = pregraph.getColourProvider().getColour(i);
+            final float[] colourComponents = c.getColorComponents(null);
+            latex.append(String.format("    \\definecolor{%s}{rgb}{%f,%f,%f}\n",
+                        Integer.toHexString(c.hashCode()),
+                        colourComponents[0],
+                        colourComponents[1],
+                        colourComponents[2]));
+        }
         for (Vertex vertex : pregraph.getVertices()) {
             if(vertex.getType().equals(Vertex.VertexType.VERTEX)){
-                latex.append(String.format("    \\node [circle,fill] (%s) at (%d,%d) {};\n",
-                        Integer.toHexString(vertex.hashCode()), pregraph.getX(vertex), pregraph.getY(vertex)));
+                if(includeAnnotations){
+                    latex.append(String.format("    \\node [circle,draw] (%s) at (%d,%d) {%s};\n",
+                            Integer.toHexString(vertex.hashCode()), pregraph.getX(vertex), pregraph.getY(vertex), vertex.getAnnotation()));
+                } else {
+                    latex.append(String.format("    \\node [circle,fill] (%s) at (%d,%d) {};\n",
+                            Integer.toHexString(vertex.hashCode()), pregraph.getX(vertex), pregraph.getY(vertex)));
+                }
             }
         }
         for (Edge edge : pregraph.getEdges()) {
@@ -73,11 +92,13 @@ public class EmbeddedPregraphLatexExport {
                 double xC2 = xB - d*xE/Math.sqrt(xE*xE+yE*yE);
                 double yC2 = yB - d*yE/Math.sqrt(xE*xE+yE*yE);
 
-                latex.append(String.format("    \\draw (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
+                latex.append(String.format("    \\draw [%s] (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
+                        Integer.toHexString(pregraph.getColourProvider().getColour(edge, 0).hashCode()),
                         Integer.toHexString(v2.hashCode()), xC1, yC1, xC2, yC2, Integer.toHexString(v2.hashCode())));
 
             } else if(edge.isSemiEdge()){
-                latex.append(String.format("    \\draw (%s) to (%d,%d);\n",
+                latex.append(String.format("    \\draw [%s] (%s) to (%d,%d);\n",
+                        Integer.toHexString(pregraph.getColourProvider().getColour(edge, 0).hashCode()),
                         Integer.toHexString((edge.getOtherVertex(edge.getSemiEdgeVertex())).hashCode()),
                         pregraph.getX(edge.getSemiEdgeVertex()),
                         pregraph.getY(edge.getSemiEdgeVertex())));
@@ -85,7 +106,8 @@ public class EmbeddedPregraphLatexExport {
                 Vertex v1 = edge.getVertices().get(0);
                 Vertex v2 = edge.getOtherVertex(v1);
                 if(edge.getMultiplicity()%2==1){
-                    latex.append(String.format("    \\draw (%s) to (%s);\n",
+                    latex.append(String.format("    \\draw [%s] (%s) to (%s);\n",
+                        Integer.toHexString(pregraph.getColourProvider().getColour(edge, edge.getMultiplicity()-1).hashCode()),
                         Integer.toHexString(v1.hashCode()), Integer.toHexString(v2.hashCode())));
                 }
                 double y1 = pregraph.getY(v1);
@@ -111,7 +133,8 @@ public class EmbeddedPregraphLatexExport {
                         double xC2 = x2/3 + 2*xC/3;
                         double yC2 = y2/3 + 2*yC/3;
 
-                        latex.append(String.format("    \\draw (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
+                        latex.append(String.format("    \\draw [%s] (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
+                                Integer.toHexString(pregraph.getColourProvider().getColour(edge, (i-1)*2).hashCode()),
                                 Integer.toHexString(v1.hashCode()), xC1, yC1, xC2, yC2, Integer.toHexString(v2.hashCode())));
                     }
                     {
@@ -123,14 +146,16 @@ public class EmbeddedPregraphLatexExport {
                         double xC2 = x2/3 + 2*xC/3;
                         double yC2 = y2/3 + 2*yC/3;
 
-                        latex.append(String.format("    \\draw (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
+                        latex.append(String.format("    \\draw [%s] (%s) .. controls (%f,%f) and (%f,%f) .. (%s);\n",
+                                Integer.toHexString(pregraph.getColourProvider().getColour(edge, 2*i-1).hashCode()),
                                 Integer.toHexString(v1.hashCode()), xC1, yC1, xC2, yC2, Integer.toHexString(v2.hashCode())));
                     }
                 }
             } else {
                 Vertex v1 = edge.getVertices().get(0);
                 Vertex v2 = edge.getOtherVertex(v1);
-                latex.append(String.format("    \\draw (%s) to (%s);\n",
+                latex.append(String.format("    \\draw [%s] (%s) to (%s);\n",
+                        Integer.toHexString(pregraph.getColourProvider().getColour(edge, 0).hashCode()),
                         Integer.toHexString(v1.hashCode()), Integer.toHexString(v2.hashCode())));
             }
         }
