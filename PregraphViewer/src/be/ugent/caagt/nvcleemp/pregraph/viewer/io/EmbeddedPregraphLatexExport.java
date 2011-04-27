@@ -45,7 +45,7 @@ public class EmbeddedPregraphLatexExport {
     }
 
     public static String export(EmbeddedPregraph pregraph){
-        StringBuffer latex = new StringBuffer("\\begin{tikzpicture}[scale=0.01]\n");
+        StringBuilder latex = new StringBuilder("\\begin{tikzpicture}[scale=0.01]\n");
         for (Vertex vertex : pregraph.getVertices()) {
             if(vertex.getType().equals(Vertex.VertexType.VERTEX)){
                 latex.append(String.format("    \\node [circle,fill] (%s) at (%d,%d) {};\n",
