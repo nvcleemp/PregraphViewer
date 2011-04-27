@@ -51,15 +51,16 @@ public class PregraphEdgePainter implements EdgePainter{
     private static final boolean DEBUG = false;
 
     public void paintEdge(EmbeddedPregraph pregraph, Edge edge, Graphics2D graphics2D) {
-        graphics2D.setColor(Color.BLACK);
         graphics2D.setStroke(stroke);
         List<Vertex> vertices = edge.getVertices();
         if(edge.isSemiEdge()){
+            graphics2D.setColor(pregraph.getColourProvider().getColour(edge, 0));
             graphics2D.drawLine(pregraph.getX(vertices.get(0)),
                     pregraph.getY(vertices.get(0)),
                     pregraph.getX(vertices.get(1)),
                     pregraph.getY(vertices.get(1)));
         } else if (edge.isLoop()){
+            graphics2D.setColor(pregraph.getColourProvider().getColour(edge, 0));
             double xP, yP, xC, yC;
             if(vertices.get(0).getType().equals(Vertex.VertexType.VERTEX)){
                 xP = pregraph.getX(vertices.get(0));
@@ -107,6 +108,7 @@ public class PregraphEdgePainter implements EdgePainter{
             int coordX2 = pregraph.getX(vertices.get(1));
             int coordY2 = pregraph.getY(vertices.get(1));
             if(edge.getMultiplicity()%2==1){
+                graphics2D.setColor(pregraph.getColourProvider().getColour(edge, edge.getMultiplicity()-1));
                 graphics2D.drawLine(coordX1,coordY1,coordX2,coordY2);
             }
             //calculate normal on the line connecting the two vertices
@@ -119,14 +121,19 @@ public class PregraphEdgePainter implements EdgePainter{
 
             QuadCurve2D.Double quadCurve;
             for(int i = 1; i <= edge.getMultiplicity()/2; i++){
+                int colour1 = (i-1)*2;
+                int colour2 = i*2-1;
+                graphics2D.setColor(pregraph.getColourProvider().getColour(edge, colour1));
                 int controlPointPosition = 2 * i - 1 + edge.getMultiplicity()%2;
                 //double yDiff = 1.0*(2*i-1)/(edges-1);
                 quadCurve = new QuadCurve2D.Double(coordX1, coordY1, midX + normX*controlPointPosition*MULTI_EDGE_GAP/size, midY + normY*controlPointPosition*MULTI_EDGE_GAP/size, coordX2, coordY2);
                 graphics2D.draw(quadCurve);
+                graphics2D.setColor(pregraph.getColourProvider().getColour(edge, colour2));
                 quadCurve = new QuadCurve2D.Double(coordX1, coordY1, midX - normX*controlPointPosition*MULTI_EDGE_GAP/size, midY - normY*controlPointPosition*MULTI_EDGE_GAP/size, coordX2, coordY2);
                 graphics2D.draw(quadCurve);
             }
         } else {
+            graphics2D.setColor(pregraph.getColourProvider().getColour(edge, 0));
             graphics2D.drawLine(pregraph.getX(vertices.get(0)),
                     pregraph.getY(vertices.get(0)),
                     pregraph.getX(vertices.get(1)),

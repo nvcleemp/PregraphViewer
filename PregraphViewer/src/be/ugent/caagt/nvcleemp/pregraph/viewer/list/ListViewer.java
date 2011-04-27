@@ -29,6 +29,7 @@ package be.ugent.caagt.nvcleemp.pregraph.viewer.list;
 
 import be.ugent.caagt.nvcleemp.graphio.pregraph.PregraphReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.ViewerPanel;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.ViewerSettings;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.util.ListSelectionNavigator;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -43,16 +44,25 @@ import javax.swing.event.ListSelectionListener;
  */
 public class ListViewer extends JPanel {
 
-    private ViewerPanel viewerPanel = new ViewerPanel();
+    private ViewerPanel viewerPanel;
     private EmbeddedPregraphListModel listModel;
 
     public ListViewer(PregraphReader reader) {
         this(new DefaultEmbeddedPregraphListModel(reader));
     }
 
+    public ListViewer(PregraphReader reader, ViewerSettings settings) {
+        this(new DefaultEmbeddedPregraphListModel(reader), settings);
+    }
+
     public ListViewer(EmbeddedPregraphListModel listModel) {
+        this(listModel, new ViewerSettings());
+    }
+
+    public ListViewer(EmbeddedPregraphListModel listModel, ViewerSettings settings) {
         super(new BorderLayout());
         this.listModel = listModel;
+        viewerPanel = new ViewerPanel(settings);
         add(new ListSelectionNavigator(listModel.getSelectionModel(), listModel), BorderLayout.NORTH);
         add(viewerPanel, BorderLayout.CENTER);
         viewerPanel.setGraph(listModel.getSelectedGraph());

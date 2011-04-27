@@ -27,6 +27,7 @@
 
 package be.ugent.caagt.nvcleemp.pregraph.viewer;
 
+import be.ugent.caagt.nvcleemp.pregraph.viewer.ViewerSettings.Setting;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ExportAllToLatex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ExportToLatex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.SaveEmbeddedPregraphListAction;
@@ -37,10 +38,13 @@ import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.ListViewer;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -53,7 +57,8 @@ public class ViewerFrame extends JFrame {
         setLayout(new GridLayout(1,1));
         setDefaultCloseOperation(HIDE_ON_CLOSE);
         JPanel panel = new JPanel(new BorderLayout());
-        ListViewer listViewer = new ListViewer(listModel);
+        final ViewerSettings settings = new ViewerSettings();
+        ListViewer listViewer = new ListViewer(listModel, settings);
         panel.add(listViewer, BorderLayout.CENTER);
         panel.add(new EmbedderControl(listModel), BorderLayout.SOUTH);
         add(panel);
@@ -64,10 +69,33 @@ public class ViewerFrame extends JFrame {
         saveMenu.add(new ExportToLatex(listModel));
         saveMenu.add(new ExportAllToLatex(listModel));
         bar.add(saveMenu);
+        JMenu settingsMenu = createSettingsMenu(settings);
+        bar.add(settingsMenu);
         JMenu viewMenu = new JMenu("View");
         viewMenu.add(new ScaleToFitAction(listModel, listViewer));
         bar.add(viewMenu);
         setJMenuBar(bar);
         pack();
+    }
+
+    private JMenu createSettingsMenu(final ViewerSettings settings){
+        final JMenu settingsMenu = new JMenu("Settings");
+        final JCheckBoxMenuItem showLegendItem = new JCheckBoxMenuItem("Show legend", settings.showLegend());
+        showLegendItem.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                settings.setShowLegend(showLegendItem.isSelected());
+            }
+        });
+        settingsMenu.add(showLegendItem);
+
+        settings.addViewerSettingsListener(new ViewerSettingsListener() {
+
+            public void settingChanged(Setting setting) {
+                if(Setting.SHOW_LEGEND.equals(setting)){
+                    showLegendItem.setSelected(settings.showLegend());
+                }
+            }
+        });
+        return settingsMenu;
     }
 }

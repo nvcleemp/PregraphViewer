@@ -27,6 +27,7 @@
 
 package be.ugent.caagt.nvcleemp.pregraph.viewer;
 
+import be.ugent.caagt.nvcleemp.pregraph.viewer.ViewerSettings.Setting;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.VertexPainter;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.EdgePainter;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.PregraphEdgePainter;
@@ -48,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -62,18 +64,60 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
     private Map<Vertex, Integer> oldXCoordinates = new HashMap<Vertex, Integer>();
     private Map<Vertex, Integer> oldYCoordinates = new HashMap<Vertex, Integer>();
 
+    private ViewerSettings viewerSettings;
+    private ViewerSettingsListener viewerSettingsListener = new ViewerSettingsListener() {
+
+        public void settingChanged(Setting setting) {
+            repaint(); //TODO: maybe check which setting once there are more settings
+        }
+    };
+
     public ViewerPanel() {
+        this(new ViewerSettings());
+    }
+
+    public ViewerPanel(ViewerSettings settings) {
         vertexPainter = new PregraphNumberedVertexPainter();
         edgePainter = new PregraphEdgePainter();
         VertexMouseHandler vertexMouseHandler = new VertexMouseHandler();
         addMouseListener(vertexMouseHandler);
         addMouseMotionListener(vertexMouseHandler);
+        this.viewerSettings = settings;
+        viewerSettings.addViewerSettingsListener(viewerSettingsListener);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         renderGraph(g, getWidth(), getHeight());
+        if(viewerSettings.showLegend()){
+            renderColourLegend(g);
+        }
+    }
+
+    private void renderColourLegend(Graphics g){
+        g = g.create();
+        g.setColor(Color.BLACK);
+        final int verticalOffset = 10;
+        final int horizontalOffset = 5;
+        final int colourBarHeight = 5;
+        final int colourBarWidth = 30;
+        final int verticalItemShift = 20;
+        final int colourCount = graph.getColourProvider().getColourCount();
+        int textWidth = SwingUtilities.computeStringWidth(
+                g.getFontMetrics(),
+                Integer.toString(colourCount));
+        g.drawRect(0, 0,
+                3*horizontalOffset + colourBarWidth + textWidth,
+                2*verticalOffset + verticalItemShift*(colourCount-1));
+        for (int i = 0; i < colourCount; i++) {
+            g.setColor(graph.getColourProvider().getColour(i));
+            g.fillRect(horizontalOffset, verticalOffset + i*verticalItemShift,
+                            colourBarWidth, colourBarHeight);
+            g.drawString(Integer.toString(i+1),
+                    2*horizontalOffset + colourBarWidth,
+                    i*verticalItemShift + verticalOffset + colourBarHeight);
+        }
     }
 
     private void renderGraph(Graphics g, int width, int height) {

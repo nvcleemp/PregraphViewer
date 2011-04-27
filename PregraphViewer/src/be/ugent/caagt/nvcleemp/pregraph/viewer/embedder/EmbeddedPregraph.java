@@ -31,6 +31,7 @@ import be.ugent.caagt.nvcleemp.graphio.Graph;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Edge;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Pregraph;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Vertex;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.PregraphColourProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +44,21 @@ public class EmbeddedPregraph implements Graph {
 
     private final Pregraph pregraph;
     private final Embedding2D embedding;
+    private final PregraphColourProvider colourProvider;
 
     public EmbeddedPregraph(Pregraph pregraph) {
         this.pregraph = pregraph;
         embedding = new Embedding2D(pregraph);
+
+        int max = 0;
+        for (Edge edge : pregraph.getEdges()) {
+            for (Integer integer : edge.getColours()) {
+                if(max < integer){
+                    max = integer;
+                }
+            }
+        }
+        colourProvider = new PregraphColourProvider(max);
     }
 
     public List<Vertex> getVertices(){
@@ -87,6 +99,10 @@ public class EmbeddedPregraph implements Graph {
         coordinates.setX(coordinates.getX() + x);
         coordinates.setY(coordinates.getY() + y);
         fireEmbeddingChanged();
+    }
+
+    public PregraphColourProvider getColourProvider(){
+        return colourProvider;
     }
 
     private List<EmbeddedPregraphListener> listeners = new ArrayList<EmbeddedPregraphListener>();
