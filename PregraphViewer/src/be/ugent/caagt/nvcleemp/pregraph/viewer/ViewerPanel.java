@@ -36,6 +36,7 @@ import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbeddedPregraph;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Edge;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Vertex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.PregraphNumberedVertexPainter;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.PregraphHighlightedVertexPainter;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -46,8 +47,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -57,12 +60,15 @@ import javax.swing.SwingUtilities;
  */
 public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
     private EmbeddedPregraph graph;
+    private VertexPainter selectionPainter;
+    private VertexPainter focusPainter;
     private VertexPainter vertexPainter;
     private EdgePainter edgePainter;
-    private Vertex selectedVertex;
-    private List<Vertex> selectedVertexNeighbours = new ArrayList<Vertex>();
+    private Vertex focusedVertex;
+    private List<Vertex> focusedVertexNeighbours = new ArrayList<Vertex>();
     private Map<Vertex, Integer> oldXCoordinates = new HashMap<Vertex, Integer>();
     private Map<Vertex, Integer> oldYCoordinates = new HashMap<Vertex, Integer>();
+    private Set<Vertex> selectedVertices = new HashSet<Vertex>();
 
     private ViewerSettings viewerSettings;
     private ViewerSettingsListener viewerSettingsListener = new ViewerSettingsListener() {
@@ -77,6 +83,8 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
     }
 
     public ViewerPanel(ViewerSettings settings) {
+        selectionPainter = new PregraphHighlightedVertexPainter(Color.YELLOW);
+        focusPainter = new PregraphHighlightedVertexPainter(Color.ORANGE);
         vertexPainter = new PregraphNumberedVertexPainter();
         edgePainter = new PregraphEdgePainter();
         VertexMouseHandler vertexMouseHandler = new VertexMouseHandler();
@@ -129,6 +137,12 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
             for (Edge edge : graph.getEdges()) {
                 edgePainter.paintEdge(graph, edge, (Graphics2D) g.create());
             }
+            for (Vertex vertex : selectedVertices) {
+                selectionPainter.paintVertex(graph, vertex, (Graphics2D) g.create());
+            }
+            if(focusedVertex!=null){
+                focusPainter.paintVertex(graph, focusedVertex, (Graphics2D)g.create());
+            }
             for (Vertex vertex : graph.getVertices()) {
                 vertexPainter.paintVertex(graph, vertex, (Graphics2D) g.create());
             }
@@ -162,32 +176,32 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            if(selectedVertex!=null){
+            if(focusedVertex!=null){
                 if(e.isShiftDown()){
                     oldXCoordinates.clear();
                     oldYCoordinates.clear();
-                    int xShift = (e.getX()-getWidth()/2) - graph.getX(selectedVertex);
-                    int yShift = (e.getY()-getHeight()/2) - graph.getY(selectedVertex);
-                    for (Vertex vertex : selectedVertexNeighbours) {
+                    int xShift = (e.getX()-getWidth()/2) - graph.getX(focusedVertex);
+                    int yShift = (e.getY()-getHeight()/2) - graph.getY(focusedVertex);
+                    for (Vertex vertex : focusedVertexNeighbours) {
                         if(Vertex.VertexType.LOOP_VERTEX.equals(vertex.getType()) ||
                                 Vertex.VertexType.SEMI_EDGE_VERTEX.equals(vertex.getType())){
                             graph.shiftCoordinates(vertex, xShift, yShift);
                         }
                     }
-                    graph.shiftCoordinates(selectedVertex, xShift, yShift);
+                    graph.shiftCoordinates(focusedVertex, xShift, yShift);
                 } else if(e.isControlDown()) {
-                    int yShift = (e.getY()-getHeight()/2) - graph.getY(selectedVertex);
-                    for (Vertex vertex : selectedVertexNeighbours) {
+                    int yShift = (e.getY()-getHeight()/2) - graph.getY(focusedVertex);
+                    for (Vertex vertex : focusedVertexNeighbours) {
                         if(Vertex.VertexType.LOOP_VERTEX.equals(vertex.getType()) ||
                                 Vertex.VertexType.SEMI_EDGE_VERTEX.equals(vertex.getType())){
                             if(oldXCoordinates.containsKey(vertex) && oldYCoordinates.containsKey(vertex)){
-                                int oldX = oldXCoordinates.get(vertex) - graph.getX(selectedVertex);
-                                int oldY = oldYCoordinates.get(vertex) - graph.getY(selectedVertex);
+                                int oldX = oldXCoordinates.get(vertex) - graph.getX(focusedVertex);
+                                int oldY = oldYCoordinates.get(vertex) - graph.getY(focusedVertex);
                                 int newX = (int)(oldX*Math.cos(0.1*yShift) - oldY*Math.sin(0.1*yShift));
                                 int newY = (int)(oldX*Math.sin(0.1*yShift) + oldY*Math.cos(0.1*yShift));
-                                graph.setCoordinates(vertex, graph.getX(selectedVertex)+newX, graph.getY(selectedVertex) + newY);
+                                graph.setCoordinates(vertex, graph.getX(focusedVertex)+newX, graph.getY(focusedVertex) + newY);
                             } else {
-                                for (Vertex otherVertex : selectedVertexNeighbours) {
+                                for (Vertex otherVertex : focusedVertexNeighbours) {
                                     oldXCoordinates.put(otherVertex, graph.getX(otherVertex));
                                     oldYCoordinates.put(otherVertex, graph.getY(otherVertex));
                                 }
@@ -197,7 +211,7 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
                 } else {
                     oldXCoordinates.clear();
                     oldYCoordinates.clear();
-                    graph.setCoordinates(selectedVertex, e.getX()-getWidth()/2, e.getY()-getHeight()/2);
+                    graph.setCoordinates(focusedVertex, e.getX()-getWidth()/2, e.getY()-getHeight()/2);
                 }
             }
         }
@@ -205,14 +219,21 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
         @Override
         public void mousePressed(MouseEvent e) {
             if(graph!=null){
+                if(!e.isShiftDown()){
+                    //clear selection
+                    selectedVertices.clear();
+                    repaint();
+                }
                 for (Vertex vertex : graph.getVertices()) {
                     if(((graph.getX(vertex)-e.getX()+getWidth()/2)*(graph.getX(vertex)-e.getX()+getWidth()/2)<36) &&
                             ((graph.getY(vertex)-e.getY()+getHeight()/2)*(graph.getY(vertex)-e.getY()+getHeight()/2)<36)){
-                        selectedVertex = vertex;
-                        for (Edge edge : selectedVertex.getEdges()) {
-                            Vertex otherVertex = edge.getOtherVertex(selectedVertex);
-                            selectedVertexNeighbours.add(otherVertex);
+                        focusedVertex = vertex;
+                        selectedVertices.add(vertex);
+                        for (Edge edge : focusedVertex.getEdges()) {
+                            Vertex otherVertex = edge.getOtherVertex(focusedVertex);
+                            focusedVertexNeighbours.add(otherVertex);
                         }
+                        repaint();
                         break;
                     }
                 }
@@ -221,10 +242,11 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            selectedVertex = null;
-            selectedVertexNeighbours.clear();
+            focusedVertex = null;
+            focusedVertexNeighbours.clear();
             oldXCoordinates.clear();
             oldYCoordinates.clear();
+            repaint();
         }
         
     }
