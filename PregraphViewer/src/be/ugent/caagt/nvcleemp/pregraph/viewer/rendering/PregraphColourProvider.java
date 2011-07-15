@@ -39,6 +39,7 @@ public class PregraphColourProvider {
     private static final Color[] COLOURS_1 = {Color.BLACK};
     private static final Color[] COLOURS_2 = {Color.BLACK, Color.RED};
     private static final Color[] COLOURS_3 = {Color.BLACK, Color.RED, Color.GREEN};
+    private static final Color[] COLOURS_4 = {Color.BLACK, Color.RED, Color.GREEN, Color.PINK};
 
     private Color defaultColour = Color.BLACK;
     private Color[] colours = null;
@@ -50,6 +51,8 @@ public class PregraphColourProvider {
             colours = COLOURS_2;
         } else if(count==3){
             colours = COLOURS_3;
+        } else if(count==4){
+            colours = COLOURS_4;
         } else if(count!=0){
             colours = getGradient(count);
         }
