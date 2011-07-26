@@ -62,11 +62,13 @@ public class PregraphNumberedVertexPainter implements VertexPainter{
             graphics2D.fillOval(pregraph.getX(vertex)-INNERCIRCLE_RADIUS, pregraph.getY(vertex)-INNERCIRCLE_RADIUS, 2*INNERCIRCLE_RADIUS, 2*INNERCIRCLE_RADIUS);
             graphics2D.setColor(Color.RED);
             final String annotation = vertex.getAnnotation();
-            final TextLayout tl = new TextLayout(annotation, font, frc);
-            final Rectangle2D r = tl.getBounds();
-            int x = (int)(pregraph.getX(vertex) - r.getWidth()/2);
-            int y = (int)(pregraph.getY(vertex) + r.getHeight()/2);
-            graphics2D.drawString(annotation, x, y);
+            if(annotation!=null){
+                final TextLayout tl = new TextLayout(annotation, font, frc);
+                final Rectangle2D r = tl.getBounds();
+                int x = (int)(pregraph.getX(vertex) - r.getWidth()/2);
+                int y = (int)(pregraph.getY(vertex) + r.getHeight()/2);
+                graphics2D.drawString(annotation, x, y);
+            }
         } else {
             graphics2D.setColor(Color.GRAY);
             graphics2D.fillRect(pregraph.getX(vertex)-INNERCIRCLE_RADIUS, pregraph.getY(vertex)-INNERCIRCLE_RADIUS, 2*INNERCIRCLE_RADIUS, 2*INNERCIRCLE_RADIUS);
