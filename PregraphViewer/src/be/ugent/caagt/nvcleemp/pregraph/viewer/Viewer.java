@@ -32,6 +32,7 @@ import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbedderRunner;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ForceEmbedder;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.RandomEmbedder;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.ScaleToFitEmbedder;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.io.DelaneyDressSymbolReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.io.EmbeddedPregraphXmlReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.DefaultEmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
@@ -146,6 +147,40 @@ public class Viewer extends JFrame {
                 }
             }
         });
+        menu.add(new AbstractAction("Open Delaney-Dress symbol") {
+
+            JFileChooser chooser = new JFileChooser();
+
+            private PregraphViewerPreferencesListener preferencesListener =
+                    new PregraphViewerPreferencesListener() {
+
+                public void preferenceChanged(Preference preference) {
+                    String dir = PregraphViewerPreferences.getInstance()
+                            .getStringPreference(Preference.CURRENT_DIRECTORY);
+                    if (chooser != null && dir != null) {
+                        chooser.setCurrentDirectory(new File(dir));
+                    }
+                }
+            };
+
+            {
+                String dir = PregraphViewerPreferences.getInstance()
+                            .getStringPreference(Preference.CURRENT_DIRECTORY);
+                if (dir != null) {
+                    chooser.setCurrentDirectory(new File(dir));
+                }
+                PregraphViewerPreferences.getInstance().addListener(preferencesListener);
+            }
+
+            public void actionPerformed(ActionEvent e) {
+                if(chooser.showOpenDialog(Viewer.this)==JFileChooser.APPROVE_OPTION){
+                    PregraphViewerPreferences.getInstance().setStringPreference(
+                            Preference.CURRENT_DIRECTORY,
+                            chooser.getSelectedFile().getParent());
+                    openDelaneyDressSymbolCode(chooser.getSelectedFile());
+                }
+            }
+        });
         windowsMenu = new JMenu("Windows"){
 
             @Override
@@ -185,6 +220,25 @@ public class Viewer extends JFrame {
         if (pregraphReader != null) {
             //TODO: move this to a worker and provide a progress monitor
             EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(pregraphReader);
+            EmbedderRunner.singleRunEmbedder(new RandomEmbedder(), listModel);
+            EmbedderRunner.repeatedRunEmbedder(50, new ForceEmbedder(), listModel);
+            EmbedderRunner.singleRunEmbedder(new ScaleToFitEmbedder(500, 400), listModel);
+            ViewerFrame frame = new ViewerFrame(f.getName(), listModel);
+            registerFrame(frame);
+            frame.setVisible(true);
+        }
+    }
+
+    private void openDelaneyDressSymbolCode(File f) {
+        DelaneyDressSymbolReader delaneyDressSymbolReader = null;
+        try {
+            delaneyDressSymbolReader = new DelaneyDressSymbolReader(f);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (delaneyDressSymbolReader != null) {
+            //TODO: move this to a worker and provide a progress monitor
+            EmbeddedPregraphListModel listModel = new DefaultEmbeddedPregraphListModel(delaneyDressSymbolReader);
             EmbedderRunner.singleRunEmbedder(new RandomEmbedder(), listModel);
             EmbedderRunner.repeatedRunEmbedder(50, new ForceEmbedder(), listModel);
             EmbedderRunner.singleRunEmbedder(new ScaleToFitEmbedder(500, 400), listModel);

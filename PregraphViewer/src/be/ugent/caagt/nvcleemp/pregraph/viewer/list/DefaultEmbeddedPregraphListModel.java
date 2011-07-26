@@ -30,6 +30,7 @@ package be.ugent.caagt.nvcleemp.pregraph.viewer.list;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Pregraph;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.PregraphReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbeddedPregraph;
+import be.ugent.caagt.nvcleemp.pregraph.viewer.io.DelaneyDressSymbolReader;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.io.EmbeddedPregraphXmlReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,6 +49,21 @@ public class DefaultEmbeddedPregraphListModel extends AbstractListModel implemen
     private ListSelectionModel selectionModel;
 
     public DefaultEmbeddedPregraphListModel(PregraphReader reader) {
+        try {
+            for (Pregraph pregraph : reader.readAllGraphs()) {
+                list.add(new EmbeddedPregraph(pregraph));
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(DefaultEmbeddedPregraphListModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        selectionModel = new DefaultListSelectionModel();
+        selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        selectionModel.addListSelectionListener(this);
+
+    }
+
+    public DefaultEmbeddedPregraphListModel(DelaneyDressSymbolReader reader) {
+        //TODO: provide common interface for PregraphReader and DelaneyDressSymbolReader
         try {
             for (Pregraph pregraph : reader.readAllGraphs()) {
                 list.add(new EmbeddedPregraph(pregraph));
