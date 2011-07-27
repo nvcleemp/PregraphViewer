@@ -75,4 +75,13 @@ public class DelaneyDressSymbol extends Pregraph{
         return m12.get(v);
     }
 
+    @Override
+    public String getMetaData(Vertex vertex) {
+        if(vertex.getType().equals(Vertex.VertexType.VERTEX)){
+            return "<html>m<sub>01</sub>: " + getM01(vertex) + "<br><br>m<sub>12</sub>: " + getM12(vertex) + "</html>";
+        } else {
+            return super.getMetaData(vertex);
+        }
+    }
+
 }
