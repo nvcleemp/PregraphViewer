@@ -63,6 +63,8 @@ public class ScaleToFitEmbedder implements Embedder<Embedding2D> {
                 maxY = y;
             }
         }
+        if(maxX==0) maxX = 1;
+        if(maxY==0) maxY = 1;
         for (Vertex vertex : pregraph.getVertices()) {
             int x = (int)(0.9*pregraph.getX(vertex));
             int y = (int)(0.9*pregraph.getY(vertex));
