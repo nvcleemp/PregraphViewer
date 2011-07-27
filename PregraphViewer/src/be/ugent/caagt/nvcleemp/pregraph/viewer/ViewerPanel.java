@@ -164,6 +164,7 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
         this.graph = graph;
         if(graph!=null)
             graph.addEmbeddedPregraphListener(this);
+        selectedVertices.clear();
         repaint();
     }
 
