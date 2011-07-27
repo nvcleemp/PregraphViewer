@@ -133,6 +133,7 @@ public class DelaneyDressSymbolReader implements GraphReader{
                                 Edge e = new Edge(vertices.get(i), newVertex);
                                 e.addColour(sigma+1);
                                 edges.add(e);
+                                vertices.add(newVertex);
                                 neighbours[i][sigma]=i;
                             } else if(existingEdges[i][neighbour]==null){
                                 Edge e = new Edge(vertices.get(i), vertices.get(neighbour));
