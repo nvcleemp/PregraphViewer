@@ -47,10 +47,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -69,7 +67,6 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
     private List<Vertex> focusedVertexNeighbours = new ArrayList<Vertex>();
     private Map<Vertex, Integer> oldXCoordinates = new HashMap<Vertex, Integer>();
     private Map<Vertex, Integer> oldYCoordinates = new HashMap<Vertex, Integer>();
-    private Set<Vertex> selectedVertices = new HashSet<Vertex>();
 
     private ViewerSettings viewerSettings;
     private ViewerSettingsListener viewerSettingsListener = new ViewerSettingsListener() {
@@ -142,11 +139,11 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
             for (Edge edge : graph.getEdges()) {
                 edgePainter.paintEdge(graph, edge, (Graphics2D) g.create());
             }
-            for (Vertex vertex : selectedVertices) {
+            for (Vertex vertex : graph.getSelectedVertices()) {
                 selectionPainter.paintVertex(graph, vertex, (Graphics2D) g.create());
             }
-            if(focusedVertex!=null){
-                focusPainter.paintVertex(graph, focusedVertex, (Graphics2D)g.create());
+            if(graph.getFocusedVertex()!=null){
+                focusPainter.paintVertex(graph, graph.getFocusedVertex(), (Graphics2D)g.create());
             }
             for (Vertex vertex : graph.getVertices()) {
                 vertexPainter.paintVertex(graph, vertex, (Graphics2D) g.create());
@@ -169,13 +166,30 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
         this.graph = graph;
         if(graph!=null)
             graph.addEmbeddedPregraphListener(this);
-        selectedVertices.clear();
         repaint();
     }
 
     public void embeddingChanged(EmbeddedPregraph source) {
         if(source.equals(graph))
             repaint();
+    }
+
+    public void focusedVertexChanged(EmbeddedPregraph source, Vertex newFocusedVertex) {
+        if(focusedVertex==null ? null==newFocusedVertex : focusedVertex.equals(newFocusedVertex)) return;
+        
+        focusedVertex = newFocusedVertex;
+        focusedVertexNeighbours.clear();
+        if(focusedVertex!=null){
+            for (Edge edge : focusedVertex.getEdges()) {
+                Vertex otherVertex = edge.getOtherVertex(focusedVertex);
+                focusedVertexNeighbours.add(otherVertex);
+            }
+        }
+        repaint();
+    }
+
+    public void selectedVerticesChanged(EmbeddedPregraph source) {
+        repaint();
     }
 
     @Override
@@ -240,19 +254,13 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
             if(graph!=null){
                 if(!e.isShiftDown()){
                     //clear selection
-                    selectedVertices.clear();
-                    repaint();
+                    graph.clearSelectedVertices();
                 }
                 for (Vertex vertex : graph.getVertices()) {
                     if(((graph.getX(vertex)-e.getX()+getWidth()/2)*(graph.getX(vertex)-e.getX()+getWidth()/2)<36) &&
                             ((graph.getY(vertex)-e.getY()+getHeight()/2)*(graph.getY(vertex)-e.getY()+getHeight()/2)<36)){
-                        focusedVertex = vertex;
-                        selectedVertices.add(vertex);
-                        for (Edge edge : focusedVertex.getEdges()) {
-                            Vertex otherVertex = edge.getOtherVertex(focusedVertex);
-                            focusedVertexNeighbours.add(otherVertex);
-                        }
-                        repaint();
+                        graph.setFocusedVertex(vertex);
+                        graph.addSelectedVertex(vertex);
                         break;
                     }
                 }
@@ -261,11 +269,9 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            focusedVertex = null;
-            focusedVertexNeighbours.clear();
+            graph.setFocusedVertex(null);
             oldXCoordinates.clear();
             oldYCoordinates.clear();
-            repaint();
         }
         
     }

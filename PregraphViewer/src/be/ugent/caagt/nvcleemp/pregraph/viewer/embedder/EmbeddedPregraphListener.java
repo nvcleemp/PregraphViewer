@@ -27,10 +27,15 @@
 
 package be.ugent.caagt.nvcleemp.pregraph.viewer.embedder;
 
+import be.ugent.caagt.nvcleemp.graphio.pregraph.Vertex;
+
 /**
  *
  * @author nvcleemp
  */
 public interface EmbeddedPregraphListener {
     public void embeddingChanged(EmbeddedPregraph source);
+    
+    public void focusedVertexChanged(EmbeddedPregraph source, Vertex newFocusedVertex);
+    public void selectedVerticesChanged(EmbeddedPregraph source);
 }

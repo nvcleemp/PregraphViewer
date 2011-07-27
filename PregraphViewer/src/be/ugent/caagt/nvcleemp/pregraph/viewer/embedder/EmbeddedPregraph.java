@@ -34,7 +34,9 @@ import be.ugent.caagt.nvcleemp.graphio.pregraph.Vertex;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.rendering.PregraphColourProvider;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -45,6 +47,8 @@ public class EmbeddedPregraph implements Graph {
     private final Pregraph pregraph;
     private final Embedding2D embedding;
     private final PregraphColourProvider colourProvider;
+    private Vertex focusedVertex;
+    private Set<Vertex> selectedVertices = new HashSet<Vertex>();
 
     public EmbeddedPregraph(Pregraph pregraph) {
         this.pregraph = pregraph;
@@ -104,12 +108,23 @@ public class EmbeddedPregraph implements Graph {
     public PregraphColourProvider getColourProvider(){
         return colourProvider;
     }
-
     private List<EmbeddedPregraphListener> listeners = new ArrayList<EmbeddedPregraphListener>();
 
     protected void fireEmbeddingChanged(){
         for (EmbeddedPregraphListener l : listeners) {
             l.embeddingChanged(this);
+        }
+    }
+
+    protected void fireFocusedVertexChanged(Vertex newFocusedVertex) {
+        for (EmbeddedPregraphListener l : listeners) {
+            l.focusedVertexChanged(this, newFocusedVertex);
+        }
+    }
+
+    protected void fireSelectedVerticesChanged() {
+        for (EmbeddedPregraphListener l : listeners) {
+            l.selectedVerticesChanged(this);
         }
     }
 
@@ -123,5 +138,36 @@ public class EmbeddedPregraph implements Graph {
 
     public String getMetaData(Vertex vertex) {
         return pregraph.getMetaData(vertex);
+    }
+
+    public Vertex getFocusedVertex() {
+        return focusedVertex;
+    }
+
+    public void setFocusedVertex(Vertex focusedVertex) {
+        if (focusedVertex == null ? null == this.focusedVertex : focusedVertex.equals(this.focusedVertex)) {
+            return;
+        }
+        this.focusedVertex = focusedVertex;
+        fireFocusedVertexChanged(focusedVertex);
+    }
+
+    public Set<Vertex> getSelectedVertices() {
+        return selectedVertices;
+    }
+
+    public void addSelectedVertex(Vertex selectedVertex) {
+        if (!selectedVertices.contains(selectedVertex)) {
+            selectedVertices.add(selectedVertex);
+            fireSelectedVerticesChanged();
+        }
+    }
+
+    public void clearSelectedVertices() {
+        if (selectedVertices.isEmpty()) {
+            return;
+        }
+        selectedVertices.clear();
+        fireSelectedVerticesChanged();
     }
 }
