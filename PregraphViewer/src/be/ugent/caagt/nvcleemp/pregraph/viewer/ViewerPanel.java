@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 
 /**
  *
@@ -92,6 +93,10 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
         addMouseMotionListener(vertexMouseHandler);
         this.viewerSettings = settings;
         viewerSettings.addViewerSettingsListener(viewerSettingsListener);
+        
+        ToolTipManager.sharedInstance().registerComponent(this);
+        ToolTipManager.sharedInstance().setInitialDelay(0);
+        ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
     }
 
     @Override
@@ -171,6 +176,19 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
     public void embeddingChanged(EmbeddedPregraph source) {
         if(source.equals(graph))
             repaint();
+    }
+
+    @Override
+    public String getToolTipText(MouseEvent e) {
+        if(graph!=null){
+            for (Vertex vertex : graph.getVertices()) {
+                if(((graph.getX(vertex)-e.getX()+getWidth()/2)*(graph.getX(vertex)-e.getX()+getWidth()/2)<36) &&
+                        ((graph.getY(vertex)-e.getY()+getHeight()/2)*(graph.getY(vertex)-e.getY()+getHeight()/2)<36)){
+                    return graph.getMetaData(vertex);
+                }
+            }
+        }
+        return super.getToolTipText(e);
     }
 
     private class VertexMouseHandler extends MouseAdapter implements MouseMotionListener {

@@ -120,4 +120,8 @@ public class EmbeddedPregraph implements Graph {
     public void removeEmbeddedPregraphListener(EmbeddedPregraphListener l){
         listeners.remove(l);
     }
+
+    public String getMetaData(Vertex vertex) {
+        return pregraph.getMetaData(vertex);
+    }
 }
