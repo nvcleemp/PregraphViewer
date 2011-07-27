@@ -131,12 +131,16 @@ public class DelaneyDressSymbolReader implements GraphReader{
                             } else if(i==neighbour){
                                 Vertex newVertex = new Vertex(Vertex.VertexType.SEMI_EDGE_VERTEX);
                                 Edge e = new Edge(vertices.get(i), newVertex);
+                                newVertex.addEdge(e);
+                                vertices.get(i).addEdge(e);
                                 e.addColour(sigma+1);
                                 edges.add(e);
                                 vertices.add(newVertex);
                                 neighbours[i][sigma]=i;
                             } else if(existingEdges[i][neighbour]==null){
                                 Edge e = new Edge(vertices.get(i), vertices.get(neighbour));
+                                vertices.get(i).addEdge(e);
+                                vertices.get(neighbour).addEdge(e);
                                 e.addColour(sigma+1);
                                 edges.add(e);
                                 existingEdges[i][neighbour] = e;
