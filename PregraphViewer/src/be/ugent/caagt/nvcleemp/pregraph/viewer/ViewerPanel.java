@@ -44,6 +44,8 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -58,7 +60,6 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
     private VertexPainter focusPainter;
     private VertexPainter vertexPainter;
     private EdgePainter edgePainter;
-    private ViewerPanelVertexMouseHandler vertexMouseHandler;
 
     private ViewerSettings viewerSettings;
     private ViewerSettingsListener viewerSettingsListener = new ViewerSettingsListener() {
@@ -77,7 +78,7 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
         focusPainter = new PregraphHighlightedVertexPainter(Color.ORANGE);
         vertexPainter = new PregraphNumberedVertexPainter();
         edgePainter = new PregraphEdgePainter();
-        vertexMouseHandler = new ViewerPanelVertexMouseHandler(this);
+        ViewerPanelVertexMouseHandler vertexMouseHandler = new ViewerPanelVertexMouseHandler(this);
         addMouseListener(vertexMouseHandler);
         addMouseMotionListener(vertexMouseHandler);
         this.viewerSettings = settings;
@@ -153,15 +154,15 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
     public void setGraph(EmbeddedPregraph graph) {
         if(this.graph != null && this.graph.equals(graph)) return;
         
+        EmbeddedPregraph oldGraph = this.graph;
         if(this.graph!=null){
             this.graph.removeEmbeddedPregraphListener(this);
-            this.graph.removeEmbeddedPregraphListener(vertexMouseHandler);
         }
         this.graph = graph;
         if(graph!=null){
             graph.addEmbeddedPregraphListener(this);
-            graph.addEmbeddedPregraphListener(vertexMouseHandler);
         }
+        fireGraphChanged(this.graph, oldGraph);
         repaint();
     }
 
@@ -195,5 +196,21 @@ public class ViewerPanel extends JPanel implements EmbeddedPregraphListener{
             }
         }
         return super.getToolTipText(e);
+    }
+    
+    private List<ViewerPanelListener> listeners = new ArrayList<ViewerPanelListener>();
+    
+    public void addViewerPanelListener(ViewerPanelListener l){
+        listeners.add(l);
+    }
+    
+    public void removeViewerPanelListener(ViewerPanelListener l){
+        listeners.remove(l);
+    }
+    
+    private void fireGraphChanged(EmbeddedPregraph newGraph, EmbeddedPregraph oldGraph){
+        for (ViewerPanelListener l : listeners) {
+            l.graphChanged(newGraph, oldGraph);
+        }
     }
 }

@@ -43,7 +43,7 @@ import java.util.Map;
  *
  * @author nvcleemp
  */
-class ViewerPanelVertexMouseHandler extends MouseAdapter implements MouseMotionListener, EmbeddedPregraphListener {
+class ViewerPanelVertexMouseHandler extends MouseAdapter implements MouseMotionListener, EmbeddedPregraphListener, ViewerPanelListener {
     private Map<Vertex, Integer> oldXCoordinates = new HashMap<Vertex, Integer>();
     private Map<Vertex, Integer> oldYCoordinates = new HashMap<Vertex, Integer>();
     private Vertex focusedVertex;
@@ -52,6 +52,7 @@ class ViewerPanelVertexMouseHandler extends MouseAdapter implements MouseMotionL
 
     ViewerPanelVertexMouseHandler(ViewerPanel viewerPanel) {
         this.viewerPanel = viewerPanel;
+        viewerPanel.addViewerPanelListener(this);
     }
 
     @Override
@@ -138,6 +139,15 @@ class ViewerPanelVertexMouseHandler extends MouseAdapter implements MouseMotionL
 
     public void selectedVerticesChanged(EmbeddedPregraph source) {
         //do nothing
+    }
+
+    public void graphChanged(EmbeddedPregraph newGraph, EmbeddedPregraph oldGraph) {
+        if(oldGraph!=null){
+            oldGraph.removeEmbeddedPregraphListener(this);
+        }
+        if(newGraph!=null){
+            newGraph.addEmbeddedPregraphListener(this);
+        }
     }
     
 }
