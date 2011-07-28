@@ -60,19 +60,24 @@ public class ListViewer extends JPanel {
     }
 
     public ListViewer(EmbeddedPregraphListModel listModel, ViewerSettings settings) {
+        this(new ViewerPanel(settings), listModel);
+    }
+
+    public ListViewer(ViewerPanel viewerPanel, EmbeddedPregraphListModel listModel) {
         super(new BorderLayout());
+        this.viewerPanel = viewerPanel;
         this.listModel = listModel;
-        viewerPanel = new ViewerPanel(settings);
         add(new ListSelectionNavigator(listModel.getSelectionModel(), listModel), BorderLayout.NORTH);
         add(viewerPanel, BorderLayout.CENTER);
         viewerPanel.setGraph(listModel.getSelectedGraph());
         listModel.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-                viewerPanel.setGraph(ListViewer.this.listModel.getSelectedGraph());
+                ListViewer.this.viewerPanel.setGraph(ListViewer.this.listModel.getSelectedGraph());
             }
         });
     }
+    
     private Dimension d = new Dimension(600, 450);
 
     @Override
