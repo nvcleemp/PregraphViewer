@@ -151,6 +151,14 @@ public class EmbeddedPregraph implements Graph {
         this.focusedVertex = focusedVertex;
         fireFocusedVertexChanged(focusedVertex);
     }
+    
+    public boolean isSelectedVertex(int i){
+        return isSelectedVertex(pregraph.getVertices().get(i));
+    }
+    
+    public boolean isSelectedVertex(Vertex v){
+        return selectedVertices.contains(v);
+    }
 
     public Set<Vertex> getSelectedVertices() {
         return selectedVertices;
