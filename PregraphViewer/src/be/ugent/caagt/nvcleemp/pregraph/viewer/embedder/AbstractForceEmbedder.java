@@ -77,6 +77,7 @@ public abstract class AbstractForceEmbedder implements Embedder<Embedding2D> {
                     maxY = y;
                 }
             }
+            vertex++;
         }
         //center graph around origin
         int shiftX = -(minX + maxX) / 2;
