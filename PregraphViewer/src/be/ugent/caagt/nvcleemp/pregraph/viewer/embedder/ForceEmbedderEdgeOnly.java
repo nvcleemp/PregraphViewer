@@ -29,25 +29,19 @@ package be.ugent.caagt.nvcleemp.pregraph.viewer.embedder;
 
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Edge;
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Vertex;
-import java.util.List;
 
 /**
  *
  * @author nvcleemp
  */
-public class ForceEmbedderEdgeOnly implements Embedder<Embedding2D>{
+public class ForceEmbedderEdgeOnly extends AbstractForceEmbedder{
 
     private static final double edge_length = 100;
     private static final double force = 1;
     private static final double friction = 0.80;
 
-    private EmbeddedPregraph pregraph;
-    private List<Vertex> vertices;
-    int[][] changes;
-
-    public void embed() {
-        if(pregraph == null) throw new IllegalStateException();
-
+    @Override
+    protected void calculateChanges() {
         for (int i = 0; i < vertices.size(); i++) {
             Vertex v1 = vertices.get(i);
             for (Edge edge : v1.getEdges()) {
@@ -74,17 +68,5 @@ public class ForceEmbedderEdgeOnly implements Embedder<Embedding2D>{
             changes[i][0] *= friction;
             changes[i][1] *= friction;
         }
-
-        for (int i = 0; i < vertices.size(); i++) {
-            pregraph.shiftCoordinates(vertices.get(i), changes[i][0], changes[i][1]);
-        }
-        
     }
-
-    public void setGraph(EmbeddedPregraph pregraph) {
-        this.pregraph = pregraph;
-        vertices = pregraph.getVertices();
-        changes = new int[vertices.size()][2];
-    }
-
 }

@@ -28,13 +28,12 @@
 package be.ugent.caagt.nvcleemp.pregraph.viewer.embedder;
 
 import be.ugent.caagt.nvcleemp.graphio.pregraph.Vertex;
-import java.util.List;
 
 /**
  *
  * @author nvcleemp
  */
-public class ForceEmbedder implements Embedder<Embedding2D>{
+public class ForceEmbedder extends AbstractForceEmbedder{
 
     private static final double edge_length = 100;
     private static final double semi_edge_length = 50;
@@ -43,13 +42,7 @@ public class ForceEmbedder implements Embedder<Embedding2D>{
     private static final double force = 0.1;
     private static final double friction = 0.80;
 
-    private EmbeddedPregraph pregraph;
-    private List<Vertex> vertices;
-    int[][] changes;
-
-    public void embed() {
-        if(pregraph == null) throw new IllegalStateException();
-
+    protected void calculateChanges() {
         for (int i = 0; i < vertices.size(); i++) {
             Vertex v1 = vertices.get(i);
             for (Vertex v : vertices) {
@@ -98,45 +91,6 @@ public class ForceEmbedder implements Embedder<Embedding2D>{
             changes[i][0] *= friction;
             changes[i][1] *= friction;
         }
-
-        int minX = 0, maxX = 0, minY = 0, maxY = 0;
-
-        for (int i = 0; i < vertices.size(); i++) {
-            pregraph.shiftCoordinates(vertices.get(i), changes[i][0], changes[i][1]);
-            if(i==0){
-                minX = maxX = pregraph.getX(vertices.get(i));
-                minY = maxY = pregraph.getY(vertices.get(i));
-            } else {
-                int x = pregraph.getX(vertices.get(i));
-                int y = pregraph.getY(vertices.get(i));
-                if(x<minX){
-                    minX = x;
-                } else if(x>maxX){
-                    maxX = x;
-                }
-
-                if(y<minY){
-                    minY = y;
-                } else if(y>maxY){
-                    maxY = y;
-                }
-            }
-        }
-
-        //center graph around origin
-
-        int shiftX = -(minX + maxX)/2;
-        int shiftY = -(minY + maxY)/2;
-        
-        for (int i = 0; i < vertices.size(); i++) {
-            pregraph.shiftCoordinates(vertices.get(i), shiftX, shiftY);
-        }
-    }
-
-    public void setGraph(EmbeddedPregraph pregraph) {
-        this.pregraph = pregraph;
-        vertices = pregraph.getVertices();
-        changes = new int[vertices.size()][2];
     }
 
 }
