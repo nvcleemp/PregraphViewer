@@ -53,7 +53,7 @@ public abstract class AbstractForceEmbedder implements Embedder<Embedding2D> {
         int minY = 0;
         int maxY = 0;
         int vertex = 0;
-        while (fixSelectedVertices && pregraph.isSelectedVertex(vertex)) {
+        while (fixSelectedVertices && (vertex == vertices.size() || pregraph.isSelectedVertex(vertex))) {
             vertex++;
         }
         if (vertex < vertices.size()) {
