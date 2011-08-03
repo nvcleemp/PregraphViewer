@@ -36,6 +36,7 @@ import be.ugent.caagt.nvcleemp.pregraph.viewer.actions.ScaleToFitAction;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.embedder.EmbedderControl;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.EmbeddedPregraphListModel;
 import be.ugent.caagt.nvcleemp.pregraph.viewer.list.ListViewer;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import javax.swing.JCheckBoxMenuItem;
