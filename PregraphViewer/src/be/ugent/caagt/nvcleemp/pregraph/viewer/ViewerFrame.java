@@ -58,7 +58,8 @@ public class ViewerFrame extends JFrame {
         setDefaultCloseOperation(HIDE_ON_CLOSE);
         JPanel panel = new JPanel(new BorderLayout());
         final ViewerSettings settings = new ViewerSettings();
-        ListViewer listViewer = new ListViewer(listModel, settings);
+        final ViewerPanel viewerPanel = new ViewerPanel(settings);
+        ListViewer listViewer = new ListViewer(viewerPanel, listModel);
         panel.add(listViewer, BorderLayout.CENTER);
         panel.add(new EmbedderControl(listModel), BorderLayout.SOUTH);
         add(panel);
