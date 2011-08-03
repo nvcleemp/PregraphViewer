@@ -171,6 +171,13 @@ public class EmbeddedPregraph implements Graph {
         }
     }
 
+    public void removeSelectedVertex(Vertex selectedVertex) {
+        if (selectedVertices.contains(selectedVertex)) {
+            selectedVertices.remove(selectedVertex);
+            fireSelectedVerticesChanged();
+        }
+    }
+
     public void clearSelectedVertices() {
         if (selectedVertices.isEmpty()) {
             return;
